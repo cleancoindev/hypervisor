@@ -58,67 +58,18 @@ task('deploy-hypervisor-factory', 'Deploy Hypervisor contract')
     })
 })
 
-task('verify-factory', 'Deploy Hypervisor contract')
-  .setAction(async (cliArgs, { ethers, run, network }) => {
-
-    // TODO cli args
-    // goerli
-    const args = {
-      uniswapFactory: "0x1f98431c8ad98523631ae4a59f267346ea31f984",  
-      factory: "0x67C11b788448C149eB08839Af6025Fe6dc80CFbC",  
-      token0: "0xFfEc41C97e070Ab5EBeB6E24258B38f69EED5020", 
-      token1: "0x1F3BeD559565b56dAabed5790af29ffEd628c4B6",
-      fee: FeeAmount.MEDIUM,
-      baseLower: -1800, 
-      baseUpper: 1800, 
-      limitLower: -600, 
-      limitUpper: 0
-    };
-
-    console.log('Network')
-    console.log('  ', network.name)
-    console.log('Task Args')
-    console.log(args)
-
-    // compile
-
-    await run('compile')
-
-    // get signer
-
-    const signer = (await ethers.getSigners())[0]
-    console.log('Signer')
-    console.log('  at', signer.address)
-    console.log('  ETH', formatEther(await signer.getBalance()))
-
-    const hypervisorFactory = await ethers.getContractAt(
-      'HypervisorFactory',
-      args.factory,
-      signer,
-    )
-
-    // await hypervisor.deployTransaction.wait(5)
-    await run('verify:verify', {
-      address: hypervisorFactory.address,
-      constructorArguments: [args.uniswapFactory],
-    })
-
-  });
-
 task('deploy-hypervisor', 'Deploy Hypervisor contract')
   .setAction(async (cliArgs, { ethers, run, network }) => {
 
     // TODO cli args
     // goerli
     const args = {
-      factory: "0x67C11b788448C149eB08839Af6025Fe6dc80CFbC",  
-      token0: "0xFfEc41C97e070Ab5EBeB6E24258B38f69EED5020", 
-      token1: "0x1F3BeD559565b56dAabed5790af29ffEd628c4B6",
+      factory: "0xC878c38F0Df509a833D10De892e1Cf7D361e3A67",  
+      token0: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", 
+      token1: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
       fee: FeeAmount.MEDIUM,
-      baseLower: -1800, 
-      baseUpper: 1800, 
-      limitLower: -600, 
-      limitUpper: 0
+      name: "Visor USDC-ETH Uni v3",
+      symbol: "vUSDC-ETHV3-1"
     };
 
     console.log('Network')
@@ -144,45 +95,19 @@ task('deploy-hypervisor', 'Deploy Hypervisor contract')
     )
 
     const hypervisor = await hypervisorFactory.createHypervisor(
-      args.token0, args.token1, args.fee, 
-      args.baseLower, args.baseUpper, args.limitLower, args.limitUpper 
-    )
+      args.token0, args.token1, args.fee, args.name, args.symbol) 
+      // args.baseLower, args.baseUpper, args.limitLower, args.limitUpper 
+    // )
 
     // verify
-
-      console.log('Verifying source on etherscan')
-
-      await hypervisor.deployTransaction.wait(5)
-
-      await run('verify:verify', {
-        address: hypervisor.address,
-      })
-
-    const poolAddress = await hypervisor.getPool(args.token0, args.token1, args.fee)
-    console.log(poolAddress);
 
   }); 
 
 task('verify-hypervisor', 'Deploy Hypervisor contract')
   .setAction(async (cliArgs, { ethers, run, network }) => {
 
-    const hypervisorAddress = "0xfb7260e2faE6EF1A33E4Fd5C69E71291C48cA9c7";
-    // TODO cli args
-    // goerli
-    const args = {
-      pool: "0xba9D3f004F7fb378260525cf26F701853CE244eD",
-      owner: signer.address,
-      baseLower: -1800, 
-      baseUpper: 1800, 
-      limitLower: -600, 
-      limitUpper: 0
-    };
-
     console.log('Network')
     console.log('  ', network.name)
-    console.log('Task Args')
-    console.log(args)
-console.log(Object.values(args));
 
     await run('compile')
 
@@ -192,6 +117,18 @@ console.log(Object.values(args));
     console.log('Signer')
     console.log('  at', signer.address)
     console.log('  ETH', formatEther(await signer.getBalance()))
+
+    const hypervisorAddress = "0x716bd8A7f8A44B010969A1825ae5658e7a18630D";
+    // TODO cli args
+    // goerli
+    const args = {
+      pool: "0x8ad599c3A0ff1De082011EFDDc58f1908eb6e6D8",
+      owner: signer.address,
+      name: "Visor USDC-ETH Uni v3",
+      symbol: "vUSDC-ETHV3-1"
+    };
+    console.log('Task Args')
+    console.log(args)
 
     const hypervisor = await ethers.getContractAt(
       'Hypervisor',
@@ -208,3 +145,109 @@ console.log(Object.values(args));
   });
 
 
+
+task('send-whitelist', 'append whitelist')
+  .addFlag('verify', 'verify contracts on etherscan')
+  .setAction(async (args, { ethers, run, network }) => {
+
+    const fs = require('fs');
+    const file = "wl.csv" //process.argv[2];
+    let data = fs.readFileSync(file, 'UTF-8');
+    let lines = data.split(/\r?\n/);
+    let reference: any[] = [];
+    let dests: any[] = [];
+    let chunks: any[] = [];
+    let chunk: any = {};
+    let counter = 0;
+    let chunkSize = 200; 
+    let i = 0;
+    lines.forEach((line: any) => {
+      counter++;
+      if(i <chunkSize) {
+        dests.push(line);
+        if( lines.length-1 == counter && line != '') {
+        // last chunk
+          chunk['dests'] = dests;
+          chunks.push(chunk);
+        }
+      }
+      else {
+        chunk['dests'] = dests;
+        chunks.push(chunk);
+        chunk = {}
+        dests = [];
+        i = 0;
+        if(line != '') dests.push(line);
+      }
+      if(line != '') reference.push(line); 
+      i++;
+
+    })
+    // put chunks back together and check against orginal 
+    
+    let test: any[] = [];
+    let item: any[] = [];
+    for(let i=0; i<chunks.length; i++) {
+        // console.log(chunks[i]['dests'].length);
+      for(let j=0; j<chunks[i]['dests'].length; j++) {
+        // console.log(chunks[i]['dests'][j]);
+        item = [];
+        item[0] = chunks[i]['dests'][j];
+        test.push(item);
+      }
+    }
+    console.log(test.length)
+    console.log(reference.length)
+
+
+// console.log(chunks);
+    // for(let i=0; i<reference.length; i++) {
+    //   assert( test[i][0] == reference[i][0]);
+    // }
+
+    
+    console.log('Network')
+    console.log('  ', network.name)
+    console.log('Task Args')
+    console.log(args)
+
+    // // get signer
+
+    const signer = (await ethers.getSigners())[0]
+    console.log('Signer')
+    console.log('  at', signer.address)
+    console.log('  ETH', formatEther(await signer.getBalance()))
+
+    // // compile
+
+    await run('compile')
+
+    const hypervisorAddress = "0x6C8116Abe5c5f2c39553c6F4217840E71462539C";
+
+    const hypervisor = await ethers.getContractAt(
+      'Hypervisor',
+      hypervisorAddress,
+      signer,
+    )
+    // let list = chunks[0].dests.splice(-1,1);
+    // console.log(list);       
+    // chunks[i].dests.pop()
+    for(let i=3; i<chunks.length; i++) {
+      chunks[i].dests.pop()
+      console.log('chunk ', i, chunks[i].dests.length);
+      let tx = await hypervisor.appendList(chunks[i].dests);
+      console.log(i, tx.hash);//, chunks[i].dests);
+      // for(let j=0; j<chunks[i].dests.length; j++) {
+      //   console.log(i, j, chunks[i].dests[j]); 
+      // } 
+    }
+      // console.log(chunks[i]);       
+//if(chunks[0].dests[i] != '') 
+// const tx = await signer.sendTransaction({
+//       to: chunks[0].dests[i],
+//       value: ethers.utils.parseEther("0.02")
+// });
+// let tx = await multisend.multisendToken(rewardsTokenAddress, chunks[i].dests, chunks[i].amounts); 
+// console.log(i, tx.hash);//, chunks[i].dests);
+// break;
+});

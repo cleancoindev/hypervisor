@@ -1,6 +1,6 @@
 ## Hypervisor
 
-Visor Hypervisor active liquidity management contract.
+Visor Hypervisor Active liquiditiy management contract.
 
 ### Testing
 
@@ -17,3 +17,8 @@ To trigger a rebalance, run:
 #### Fork Test
 
 `npm run test`
+
+## Inventory Risk Management (TODO)
+
+- introduce swap functionality to rebalance in order to halt impermenant loss
+and rebalance tokens quantities

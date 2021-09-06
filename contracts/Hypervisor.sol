@@ -21,13 +21,11 @@ import "../interfaces/IUniversalVault.sol";
 // @title Hypervisor
 // @notice A Uniswap V2-like interface with fungible liquidity to Uniswap V3
 // which allows for arbitrary liquidity provision: one-sided, lop-sided, and
-// balanced.
+// balanced
 contract Hypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallback, ERC20 {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
     using SignedSafeMath for int256;
-
-    address public owner;
 
     IUniswapV3Pool public pool;
     IERC20 public token0;
@@ -40,24 +38,12 @@ contract Hypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallback, E
     int24 public limitLower;
     int24 public limitUpper;
 
-    // The following three variables server the very important purpose of
-    // limiting inventory risk and the arbitrage opportunities made possible by
-    // our instant deposit & withdrawal.
-    // If, in the ETHUSDT pool at an ETH price of 2500 USDT, I deposit 100k
-    // USDT in a pool with 40 WETH, and then directly afterwards withdraw 50k
-    // USDT and 20 WETH (this is of equivalent dollar value), I drastically
-    // change the pool composition and additionally decreases deployed capital
-    // by 50%. Keeping a maxTotalSupply just above our current total supply
-    // means that large amounts of funds can't be deposited all at once to
-    // create a large imbalance of funds or to sideline many funds.
-    // Additionally, deposit maximums prevent users from using the pool as
-    // a counterparty to trade assets against while avoiding uniswap fees
-    // & slippage--if someone were to try to do this with a large amount of
-    // capital they would be overwhelmed by the gas fees necessary to call
-    // deposit & withdrawal many times.
+    address public owner;
     uint256 public deposit0Max;
     uint256 public deposit1Max;
     uint256 public maxTotalSupply;
+    mapping(address=>bool) public list;
+    bool public whitelisted;
 
     uint256 constant public PRECISION = 1e36;
 
@@ -65,8 +51,10 @@ contract Hypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallback, E
     // @param _owner Owner of the Hypervisor
     constructor(
         address _pool,
-        address _owner
-    ) ERC20("Fungible Liquidity", "LIQ") {
+        address _owner,
+        string memory name,
+        string memory symbol
+    ) ERC20(name, symbol) {
         pool = IUniswapV3Pool(_pool);
         token0 = IERC20(pool.token0());
         token1 = IERC20(pool.token1());
@@ -76,13 +64,11 @@ contract Hypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallback, E
         owner = _owner;
 
         maxTotalSupply = 0; // no cap
-        deposit0Max = uint256(-1); // max uint256
-        deposit1Max = uint256(-1); // max uint256
+        deposit0Max = uint256(-1);
+        deposit1Max = uint256(-1);
+        whitelisted = false;
     }
 
-    // @notice Distributes shares to depositor equal to the token1 value of his
-    // deposit multiplied by the ratio of total liquidity shares issued divided
-    // by the pool's AUM measured in token1 value.
     // @param deposit0 Amount of token0 transfered from sender to Hypervisor
     // @param deposit1 Amount of token0 transfered from sender to Hypervisor
     // @param to Address to which liquidity tokens are minted
@@ -95,8 +81,11 @@ contract Hypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallback, E
         require(deposit0 > 0 || deposit1 > 0, "deposits must be nonzero");
         require(deposit0 < deposit0Max && deposit1 < deposit1Max, "deposits must be less than maximum amounts");
         require(to != address(0) && to != address(this), "to");
+        if(whitelisted) {
+          require(list[to], "must be on the list");
+        }  
 
-        // update fees for inclusion in total pool amounts
+        // update fess for inclusion in total pool amounts
         (uint128 baseLiquidity,,) = _position(baseLower, baseUpper);
         if (baseLiquidity > 0) {
             pool.burn(baseLower, baseUpper, 0);
@@ -131,9 +120,6 @@ contract Hypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallback, E
         require(maxTotalSupply == 0 || totalSupply() <= maxTotalSupply, "maxTotalSupply");
     }
 
-    // @notice Redeems shares by sending out a percentage of the hypervisor's
-    // AUM--this percentage is equal to the percentage of total issued shares
-    // represented by the redeeemed shares.
     // @param shares Number of liquidity tokens to redeem as pool assets
     // @param to Address to which redeemed pool assets are sent
     // @param from Address from which liquidity tokens are sent
@@ -169,11 +155,6 @@ contract Hypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallback, E
         emit Withdraw(from, to, shares, amount0, amount1);
     }
 
-    // @notice Updates hypervisor's LP positions.
-    // @dev The base position is placed first with as much liquidity as
-    // possible and is typically symmetric around the current price. This order
-    // should use up all of one token, leaving some unused quantity of the
-    // other. This unused amount is then placed as a single-sided order.
     // @param _baseLower The lower tick of the base position
     // @param _baseUpper The upper tick of the base position
     // @param _limitLower The lower tick of the limit position
@@ -457,6 +438,20 @@ contract Hypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallback, E
     function setDepositMax(uint256 _deposit0Max, uint256 _deposit1Max) external onlyOwner {
         deposit0Max = _deposit0Max;
         deposit1Max = _deposit1Max;
+    }
+
+    function appendList(address[] memory listed) external onlyOwner {
+        for (uint8 i; i < listed.length; i++) {
+          list[listed[i]] = true; 
+        }
+    }
+
+    function toggleWhitelist() external onlyOwner {
+      whitelisted = whitelisted ? false : true;
+    }
+
+    function transferOwnership(address newOwner) external onlyOwner {
+        owner = newOwner;
     }
 
     modifier onlyOwner {

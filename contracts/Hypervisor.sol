@@ -15,8 +15,8 @@ import "@uniswap/v3-core/contracts/libraries/TickMath.sol";
 import "@uniswap/v3-core/contracts/libraries/FullMath.sol";
 import "@uniswap/v3-periphery/contracts/libraries/LiquidityAmounts.sol";
 
-import "./interfaces/IVault.sol";
-import "./interfaces/IUniversalVault.sol";
+import "../interfaces/IVault.sol";
+import "../interfaces/IUniversalVault.sol";
 
 // @title Hypervisor
 // @notice A Uniswap V2-like interface with fungible liquidity to Uniswap V3
@@ -426,19 +426,6 @@ contract Hypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallback, E
     function _uint128Safe(uint256 x) internal pure returns (uint128) {
         assert(x <= type(uint128).max);
         return uint128(x);
-    }
-
-     function emergencyWithdraw(IERC20 token, uint256 amount) external onlyOwner {
-        token.safeTransfer(msg.sender, amount);
-    }
-
-    function emergencyBurn(
-        int24 tickLower,
-        int24 tickUpper,
-        uint128 liquidity
-    ) external onlyOwner {
-        pool.burn(tickLower, tickUpper, liquidity);
-        pool.collect(msg.sender, tickLower, tickUpper, type(uint128).max, type(uint128).max);
     }
 
     // @param _maxTotalSupply The maximum liquidity token supply the contract allows

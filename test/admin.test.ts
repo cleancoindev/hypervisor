@@ -131,75 +131,75 @@ describe('Admin', () => {
         expect(tokenAmounts[0] === tokenAmounts[1])
     })
 
-    it('Only admin can call emergencyWithdraw', async () => {
-        await token0.mint(alice.address, ethers.utils.parseEther('1000000'))
-        await token1.mint(alice.address, ethers.utils.parseEther('1000000'))
+    // it('Only admin can call emergencyWithdraw', async () => {
+    //     await token0.mint(alice.address, ethers.utils.parseEther('1000000'))
+    //     await token1.mint(alice.address, ethers.utils.parseEther('1000000'))
 
-        await token0.connect(alice).approve(hypervisor.address, ethers.utils.parseEther('1000000'))
-        await token1.connect(alice).approve(hypervisor.address, ethers.utils.parseEther('1000000'))
+    //     await token0.connect(alice).approve(hypervisor.address, ethers.utils.parseEther('1000000'))
+    //     await token1.connect(alice).approve(hypervisor.address, ethers.utils.parseEther('1000000'))
 
-        // alice should start with 0 hypervisor tokens
-        let alice_liq_balance = await hypervisor.balanceOf(alice.address)
-        expect(alice_liq_balance).to.equal(0)
+    //     // alice should start with 0 hypervisor tokens
+    //     let alice_liq_balance = await hypervisor.balanceOf(alice.address)
+    //     expect(alice_liq_balance).to.equal(0)
 
-        await hypervisor.connect(alice).deposit(ethers.utils.parseEther('1000'), ethers.utils.parseEther('1000'), alice.address)
+    //     await hypervisor.connect(alice).deposit(ethers.utils.parseEther('1000'), ethers.utils.parseEther('1000'), alice.address)
 
-        let token0hypervisor = await token0.balanceOf(hypervisor.address)
-        let token1hypervisor = await token1.balanceOf(hypervisor.address)
-        expect(token0hypervisor).to.equal(ethers.utils.parseEther('1000'))
-        expect(token1hypervisor).to.equal(ethers.utils.parseEther('1000'))
-        alice_liq_balance = await hypervisor.balanceOf(alice.address)
-        console.log("alice liq balance: " + alice_liq_balance)
-        // check that alice has been awarded liquidity tokens equal the
-        // quantity of tokens deposited since their price is the same
-        expect(alice_liq_balance).to.equal(ethers.utils.parseEther('2000'))
+    //     let token0hypervisor = await token0.balanceOf(hypervisor.address)
+    //     let token1hypervisor = await token1.balanceOf(hypervisor.address)
+    //     expect(token0hypervisor).to.equal(ethers.utils.parseEther('1000'))
+    //     expect(token1hypervisor).to.equal(ethers.utils.parseEther('1000'))
+    //     alice_liq_balance = await hypervisor.balanceOf(alice.address)
+    //     console.log("alice liq balance: " + alice_liq_balance)
+    //     // check that alice has been awarded liquidity tokens equal the
+    //     // quantity of tokens deposited since their price is the same
+    //     expect(alice_liq_balance).to.equal(ethers.utils.parseEther('2000'))
 
-        await hypervisor.transferOwnership(admin.address)
+    //     await hypervisor.transferOwnership(admin.address)
 
-        await expect(admin.connect(alice).emergencyWithdraw(hypervisor.address, token0.address, ethers.utils.parseEther('1000'))).to.be.revertedWith("only admin")
+    //     await expect(admin.connect(alice).emergencyWithdraw(hypervisor.address, token0.address, ethers.utils.parseEther('1000'))).to.be.revertedWith("only admin")
 
-        await admin.emergencyWithdraw(hypervisor.address, token0.address, ethers.utils.parseEther('1000'))
+    //     await admin.emergencyWithdraw(hypervisor.address, token0.address, ethers.utils.parseEther('1000'))
 
-        token0hypervisor = await token0.balanceOf(hypervisor.address)
-        token1hypervisor = await token1.balanceOf(hypervisor.address)
-        expect(token0hypervisor).to.equal(0)
-        expect(token1hypervisor).to.equal(ethers.utils.parseEther('1000'))
-        expect(await token0.balanceOf(admin.address)).to.equal(ethers.utils.parseEther('1000'))
+    //     token0hypervisor = await token0.balanceOf(hypervisor.address)
+    //     token1hypervisor = await token1.balanceOf(hypervisor.address)
+    //     expect(token0hypervisor).to.equal(0)
+    //     expect(token1hypervisor).to.equal(ethers.utils.parseEther('1000'))
+    //     expect(await token0.balanceOf(admin.address)).to.equal(ethers.utils.parseEther('1000'))
 
-        await admin.rescueERC20(token0.address, bob.address);
+    //     await admin.rescueERC20(token0.address, bob.address);
 
-        expect(await token0.balanceOf(bob.address)).to.equal(ethers.utils.parseEther('1000'))
-    })
+    //     expect(await token0.balanceOf(bob.address)).to.equal(ethers.utils.parseEther('1000'))
+    // })
 
-    it('Only admin can call emergencyBurn', async () => {
-        await token0.mint(alice.address, ethers.utils.parseEther('1000000'))
-        await token1.mint(alice.address, ethers.utils.parseEther('1000000'))
+    // it('Only admin can call emergencyBurn', async () => {
+    //     await token0.mint(alice.address, ethers.utils.parseEther('1000000'))
+    //     await token1.mint(alice.address, ethers.utils.parseEther('1000000'))
 
-        await token0.connect(alice).approve(hypervisor.address, ethers.utils.parseEther('1000000'))
-        await token1.connect(alice).approve(hypervisor.address, ethers.utils.parseEther('1000000'))
+    //     await token0.connect(alice).approve(hypervisor.address, ethers.utils.parseEther('1000000'))
+    //     await token1.connect(alice).approve(hypervisor.address, ethers.utils.parseEther('1000000'))
 
-        // alice should start with 0 hypervisor tokens
-        let alice_liq_balance = await hypervisor.balanceOf(alice.address)
-        expect(alice_liq_balance).to.equal(0)
+    //     // alice should start with 0 hypervisor tokens
+    //     let alice_liq_balance = await hypervisor.balanceOf(alice.address)
+    //     expect(alice_liq_balance).to.equal(0)
 
-        await hypervisor.connect(alice).deposit(ethers.utils.parseEther('1000'), ethers.utils.parseEther('1000'), alice.address)
+    //     await hypervisor.connect(alice).deposit(ethers.utils.parseEther('1000'), ethers.utils.parseEther('1000'), alice.address)
 
-        let token0hypervisor = await token0.balanceOf(hypervisor.address)
-        let token1hypervisor = await token1.balanceOf(hypervisor.address)
-        expect(token0hypervisor).to.equal(ethers.utils.parseEther('1000'))
-        expect(token1hypervisor).to.equal(ethers.utils.parseEther('1000'))
-        alice_liq_balance = await hypervisor.balanceOf(alice.address)
-        console.log("alice liq balance: " + alice_liq_balance)
-        // check that alice has been awarded liquidity tokens equal the
-        // quantity of tokens deposited since their price is the same
-        expect(alice_liq_balance).to.equal(ethers.utils.parseEther('2000'))
+    //     let token0hypervisor = await token0.balanceOf(hypervisor.address)
+    //     let token1hypervisor = await token1.balanceOf(hypervisor.address)
+    //     expect(token0hypervisor).to.equal(ethers.utils.parseEther('1000'))
+    //     expect(token1hypervisor).to.equal(ethers.utils.parseEther('1000'))
+    //     alice_liq_balance = await hypervisor.balanceOf(alice.address)
+    //     console.log("alice liq balance: " + alice_liq_balance)
+    //     // check that alice has been awarded liquidity tokens equal the
+    //     // quantity of tokens deposited since their price is the same
+    //     expect(alice_liq_balance).to.equal(ethers.utils.parseEther('2000'))
 
-        await hypervisor.transferOwnership(admin.address)
+    //     await hypervisor.transferOwnership(admin.address)
 
-        await expect(admin.connect(alice).emergencyBurn(hypervisor.address, -120, 120, 0)).to.be.revertedWith("only admin")
+    //     await expect(admin.connect(alice).emergencyBurn(hypervisor.address, -120, 120, 0)).to.be.revertedWith("only admin")
 
-        await expect(admin.emergencyBurn(hypervisor.address, -120, 120, 0)).to.be.revertedWith("NP");
-    })
+    //     await expect(admin.emergencyBurn(hypervisor.address, -120, 120, 0)).to.be.revertedWith("NP");
+    // })
 
     it('transfer Hypervisor Ownership', async () => {
         await token0.mint(alice.address, ethers.utils.parseEther('1000000'))

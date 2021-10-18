@@ -22,6 +22,7 @@ task('deploy-hypervisor-factory', 'Deploy Hypervisor contract')
     // goerli
     const args = {
       uniswapFactory: "0x1f98431c8ad98523631ae4a59f267346ea31f984",
+      TickMath:"0x308C3E60585Ad4EAb5b7677BE0566FeaD4cb4746"
     };
 
     console.log('Network')
@@ -42,16 +43,19 @@ task('deploy-hypervisor-factory', 'Deploy Hypervisor contract')
 
     // deploy contracts
 
-    const hypervisorFactoryFactory = await ethers.getContractFactory('HypervisorFactory')
 
     const hypervisorFactory = await deployContract(
       'HypervisorFactory',
-      await ethers.getContractFactory('HypervisorFactory'),
+      await ethers.getContractFactory('HypervisorFactory',{
+        libraries:{
+          TickMath:args.TickMath
+        }
+      }),
       signer,
       [args.uniswapFactory]
     )
 
-    await hypervisorFactory.deployTransaction.wait(5)
+    //await hypervisorFactory.deployTransaction.wait(5)
     await run('verify:verify', {
       address: hypervisorFactory.address,
       constructorArguments: [args.uniswapFactory],
@@ -64,12 +68,12 @@ task('deploy-hypervisor', 'Deploy Hypervisor contract')
     // TODO cli args
     // goerli
     const args = {
-      factory: "0xC878c38F0Df509a833D10De892e1Cf7D361e3A67",  
-      token0: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", 
+      factory: "0x4213c6F3d78D5e794F26c0D2360c48b7d410C92f",  
+      token0: "0x5B650f3897cc19869DFc36F863568b21BDb50CCF", 
       token1: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
       fee: FeeAmount.MEDIUM,
-      name: "Visor USDC-ETH Uni v3",
-      symbol: "vUSDC-ETHV3-1"
+      name: "Visor WETHVISR-ETH Uni v3",
+      symbol: "vWETHVISR-ETHV3-1"
     };
 
     console.log('Network')
@@ -94,12 +98,26 @@ task('deploy-hypervisor', 'Deploy Hypervisor contract')
       signer,
     )
 
-    const hypervisor = await hypervisorFactory.createHypervisor(
-      args.token0, args.token1, args.fee, args.name, args.symbol) 
-      // args.baseLower, args.baseUpper, args.limitLower, args.limitUpper 
-    // )
+    await hypervisorFactory.createHypervisor(
+      args.token0, args.token1, args.fee, args.name, args.symbol); 
+    
+    const hypervisorAddress = await hypervisorFactory.getHypervisor(args.token0, args.token1, args.fee)
+    console.log("Hypervisor address",hypervisorAddress)
+    const hypervisor = await ethers.getContractAt(
+        'Hypervisor',
+        hypervisorAddress,
+        signer,
+      )
+    
+    const poolAddress=await hypervisor.pool();
 
+    console.log("Given Pool address",poolAddress)
     // verify
+
+    await run('verify:verify', {
+      address: hypervisor.address,
+      constructorArguments: [poolAddress,signer.address,args.name,args.symbol],
+    })
 
   }); 
 
@@ -118,14 +136,14 @@ task('verify-hypervisor', 'Deploy Hypervisor contract')
     console.log('  at', signer.address)
     console.log('  ETH', formatEther(await signer.getBalance()))
 
-    const hypervisorAddress = "0x716bd8A7f8A44B010969A1825ae5658e7a18630D";
+    const hypervisorAddress = "0x52e89a86c0baa4af691b2693d9e5363cc08845d5";
     // TODO cli args
     // goerli
     const args = {
-      pool: "0x8ad599c3A0ff1De082011EFDDc58f1908eb6e6D8",
+      pool: "0xcd1f91f6c39929cecc89b4a2d29aaac887dd9f76",
       owner: signer.address,
-      name: "Visor USDC-ETH Uni v3",
-      symbol: "vUSDC-ETHV3-1"
+      name: "Visor DAI-ETH Uni v3",
+      symbol: "vDAI-ETHV3-1"
     };
     console.log('Task Args')
     console.log(args)

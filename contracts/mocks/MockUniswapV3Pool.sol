@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity =0.7.6;
 
-import {IUniswapV3Pool} from '@uniswap/v3-core/contracts/interfaces/IUniswapV3Pool.sol';
-import {IUniswapV3Factory} from '@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol';
-import {IUniswapV3MintCallback} from '@uniswap/v3-core/contracts/interfaces/callback/IUniswapV3MintCallback.sol';
-import {IUniswapV3SwapCallback} from '@uniswap/v3-core/contracts/interfaces/callback/IUniswapV3SwapCallback.sol';
-import {IERC20Minimal} from '@uniswap/v3-core/contracts/interfaces/IERC20Minimal.sol';
-import {IUniswapV3PoolDeployer} from '@uniswap/v3-core/contracts/interfaces/IUniswapV3PoolDeployer.sol';
+import {IUniswapV3Pool} from '@uniswap/v3-core-optimism/contracts/interfaces/IUniswapV3Pool.sol';
+import {IUniswapV3Factory} from '@uniswap/v3-core-optimism/contracts/interfaces/IUniswapV3Factory.sol';
+import {IUniswapV3MintCallback} from '@uniswap/v3-core-optimism/contracts/interfaces/callback/IUniswapV3MintCallback.sol';
+import {IUniswapV3SwapCallback} from '@uniswap/v3-core-optimism/contracts/interfaces/callback/IUniswapV3SwapCallback.sol';
+import {IERC20Minimal} from '@uniswap/v3-core-optimism/contracts/interfaces/IERC20Minimal.sol';
+import {IUniswapV3PoolDeployer} from '@uniswap/v3-core-optimism/contracts/interfaces/IUniswapV3PoolDeployer.sol';
 
-import {TickMath} from '@uniswap/v3-core/contracts/libraries/TickMath.sol';
-import {LowGasSafeMath} from '@uniswap/v3-core/contracts/libraries/LowGasSafeMath.sol';
-import {TransferHelper} from '@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol';
-import {LiquidityAmounts} from '@uniswap/v3-periphery/contracts/libraries/LiquidityAmounts.sol';
+import {TickMath} from '@uniswap/v3-core-optimism/contracts/libraries/TickMath.sol';
+import {LowGasSafeMath} from '@uniswap/v3-core-optimism/contracts/libraries/LowGasSafeMath.sol';
+import {TransferHelper} from '@uniswap/v3-periphery-optimism/contracts/libraries/TransferHelper.sol';
+import {LiquidityAmounts} from '@uniswap/v3-periphery-optimism/contracts/libraries/LiquidityAmounts.sol';
 
 contract MockUniswapV3Pool is IUniswapV3MintCallback, IUniswapV3SwapCallback, IERC20Minimal {
     using LowGasSafeMath for uint256;

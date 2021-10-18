@@ -8,8 +8,8 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 
-import "@uniswap/v3-core/contracts/libraries/TickMath.sol";
-import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
+import "@uniswap/v3-core-optimism/contracts/libraries/TickMath.sol";
+import "@uniswap/v3-periphery-optimism/contracts/interfaces/ISwapRouter.sol";
 
 contract Swap {
     using SafeERC20 for IERC20;

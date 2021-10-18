@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity =0.7.6;
 
-import {IUniswapV3Factory} from '@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol';
+import {IUniswapV3Factory} from '@uniswap/v3-core-optimism/contracts/interfaces/IUniswapV3Factory.sol';
 
 import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 

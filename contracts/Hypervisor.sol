@@ -8,12 +8,12 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 
-import "@uniswap/v3-core/contracts/interfaces/callback/IUniswapV3MintCallback.sol";
-import "@uniswap/v3-core/contracts/interfaces/callback/IUniswapV3SwapCallback.sol";
-import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Pool.sol";
-import "@uniswap/v3-core/contracts/libraries/TickMath.sol";
-import "@uniswap/v3-core/contracts/libraries/FullMath.sol";
-import "@uniswap/v3-periphery/contracts/libraries/LiquidityAmounts.sol";
+import "@uniswap/v3-core-optimism/contracts/interfaces/callback/IUniswapV3MintCallback.sol";
+import "@uniswap/v3-core-optimism/contracts/interfaces/callback/IUniswapV3SwapCallback.sol";
+import "@uniswap/v3-core-optimism/contracts/interfaces/IUniswapV3Pool.sol";
+import "@uniswap/v3-core-optimism/contracts/libraries/TickMath.sol";
+import "@uniswap/v3-core-optimism/contracts/libraries/FullMath.sol";
+import "@uniswap/v3-periphery-optimism/contracts/libraries/LiquidityAmounts.sol";
 
 import "./interfaces/IVault.sol";
 import "./interfaces/IUniversalVault.sol";

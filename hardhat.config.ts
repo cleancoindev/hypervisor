@@ -25,6 +25,25 @@ const config: HardhatUserConfig = {
           }
           */
       },
+      Optimism_Testnet: {
+        url: 'https://kovan.optimism.io',
+        accounts: [process.env.PRIVATE_KEY as string]
+      }, 
+      
+      Optimism_local: {
+        url: "http://127.0.0.1:8545",
+        accounts: {
+          mnemonic: "test test test test test test test test test test test junk",
+        },
+      },
+      Arbitrum_Testnet: {
+        url: "https://rinkeby.arbitrum.io/rpc",
+        accounts:[process.env.PRIVATE_KEY as string]
+      },
+      Arbitrum_Mainnet: {
+        url: "https://arb1.arbitrum.io/rpc",
+       accounts:[process.env.PRIVATE_KEY as string]
+      },
       goerli: {
         url: 'https://goerli.infura.io/v3/' + process.env.INFURA_ID,
         accounts: {
@@ -46,14 +65,14 @@ const config: HardhatUserConfig = {
         },
         gasPrice: parseUnits('60', 'gwei').toNumber(),
       },
-      mainnet: {
-        url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
-        accounts: [process.env.MAINNET_PRIVATE_KEY as string],
-      },
-      rinkeby: {
-        url: `https://eth-rinkeby.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
-        accounts: [process.env.RINKEBY_PRIVATE_KEY as string],
-      },
+       mainnet: {
+         url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
+         accounts: [process.env.PRIVATE_KEY as string],
+       },
+       rinkeby: {
+         url: `https://eth-rinkeby.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
+         accounts: [process.env.PRIVATE_KEY as string],
+       },
   },
   watcher: {
       compilation: {

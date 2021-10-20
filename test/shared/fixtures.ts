@@ -19,7 +19,28 @@ interface UniswapV3Fixture {
 }
 
 async function uniswapV3Fixture(): Promise<UniswapV3Fixture> {
-    const factoryFactory = await ethers.getContractFactory('UniswapV3Factory')
+    const position = await (await ethers.getContractFactory('Position')).deploy()
+    const oracle = await (await ethers.getContractFactory('Oracle')).deploy()
+    const swapMath = await (await ethers.getContractFactory('SwapMath')).deploy()
+    const tick = await (await ethers.getContractFactory('Tick')).deploy()
+    const tickBitmap = await (await ethers.getContractFactory('TickBitmap')).deploy()
+    const tickMath = await (await ethers.getContractFactory('TickMath')).deploy()
+    const libraries = {
+      Position: position.address,
+      Oracle: oracle.address,
+      Tick: tick.address,
+      TickBitmap: tickBitmap.address,
+      TickMath: tickMath.address,
+      SwapMath: swapMath.address,
+    }
+
+    const deployer = await (await ethers.getContractFactory('UniswapV3PoolDeployer', { libraries })).deploy()
+
+    const factoryFactory = await ethers.getContractFactory('UniswapV3Factory',{
+        libraries:{
+            UniswapV3PoolDeployer:deployer.address
+        }
+    })
     const factory = (await factoryFactory.deploy()) as UniswapV3Factory
 
     const tokenFactory = await ethers.getContractFactory('TestERC20')
@@ -28,7 +49,16 @@ async function uniswapV3Fixture(): Promise<UniswapV3Fixture> {
     const routerFactory = await ethers.getContractFactory('SwapRouter')
     const router = (await routerFactory.deploy(factory.address, WETH.address)) as SwapRouter
 
-    const nftFactory = await ethers.getContractFactory('NonfungiblePositionManager')
+    const NonfungiblePositionLibrary = await (await ethers.getContractFactory('NonfungiblePositionLibrary',{
+        libraries:{
+            TickMath:libraries.TickMath
+        }
+    })).deploy()
+    const nftFactory = await ethers.getContractFactory('NonfungiblePositionManager',{
+        libraries:{
+            NonfungiblePositionLibrary:NonfungiblePositionLibrary.address 
+        }
+    })
     const nft = (await nftFactory.deploy(factory.address, WETH.address, ethers.constants.AddressZero)) as NonfungiblePositionManager // TODO: third parameter is wrong
     return { factory, router, nft }
 }
@@ -58,7 +88,12 @@ interface HypervisorFactoryFixture {
 }
 
 async function hypervisorFactoryFixture(factory: UniswapV3Factory): Promise<HypervisorFactoryFixture> {
-    const hypervisorFactoryFactory = await ethers.getContractFactory('HypervisorFactory')
+    const tickMath = await (await ethers.getContractFactory('TickMath')).deploy()
+    const hypervisorFactoryFactory = await ethers.getContractFactory('HypervisorFactory',{
+        libraries:{
+            TickMath:tickMath.address
+        }
+    })
     const hypervisorFactory = (await hypervisorFactoryFactory.deploy(factory.address)) as HypervisorFactory
     return { hypervisorFactory }
 }

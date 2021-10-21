@@ -18,20 +18,24 @@ interface UniswapV3Fixture {
     nft: NonfungiblePositionManager
 }
 
+let libraries:any;
+
 async function uniswapV3Fixture(): Promise<UniswapV3Fixture> {
+    if(!libraries){
     const position = await (await ethers.getContractFactory('Position')).deploy()
     const oracle = await (await ethers.getContractFactory('Oracle')).deploy()
     const swapMath = await (await ethers.getContractFactory('SwapMath')).deploy()
     const tick = await (await ethers.getContractFactory('Tick')).deploy()
     const tickBitmap = await (await ethers.getContractFactory('TickBitmap')).deploy()
     const tickMath = await (await ethers.getContractFactory('TickMath')).deploy()
-    const libraries = {
+    libraries = {
       Position: position.address,
       Oracle: oracle.address,
       Tick: tick.address,
       TickBitmap: tickBitmap.address,
       TickMath: tickMath.address,
       SwapMath: swapMath.address,
+        }
     }
 
     const deployer = await (await ethers.getContractFactory('UniswapV3PoolDeployer', { libraries })).deploy()

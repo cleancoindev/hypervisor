@@ -1,0 +1,16 @@
+{
+    "HypervisorFactoy": {
+        "contractAddress": "0x4213c6F3d78D5e794F26c0D2360c48b7d410C92f",
+        "link": "https://kovan-optimistic.etherscan.io/address/0x4213c6F3d78D5e794F26c0D2360c48b7d410C92f#code"
+    },
+    "Hypervisors": {
+        "WETH DAI Hypervisor": {
+            "contractAddress": "0x52e89a86c0baa4af691b2693d9e5363cc08845d5",
+            "link": "https://kovan-optimistic.etherscan.io/address/0x52e89a86c0baa4af691b2693d9e5363cc08845d5#code"
+        },
+        "WETH VISOR Hypervisor": {
+            "contractAddress": "0xB8a430049627521635C1f20C946E904154C17393",
+            "link": "https://kovan-optimistic.etherscan.io/address/0xB8a430049627521635C1f20C946E904154C17393#code"
+        }
+    }
+}

@@ -16,3 +16,5 @@ flat.sol
 typechain
 artifacts
 cache
+typechain-types/
+yarn.lock

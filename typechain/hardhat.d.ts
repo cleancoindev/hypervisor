@@ -137,6 +137,162 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.UniProxy__factory>;
 
+    getContractAt(
+      name: "Ownable",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Ownable>;
+    getContractAt(
+      name: "ERC20Permit",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ERC20Permit>;
+    getContractAt(
+      name: "IERC20Permit",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC20Permit>;
+    getContractAt(
+      name: "ERC20",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ERC20>;
+    getContractAt(
+      name: "IERC20",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC20>;
+    getContractAt(
+      name: "IUniswapV3MintCallback",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IUniswapV3MintCallback>;
+    getContractAt(
+      name: "IUniswapV3SwapCallback",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IUniswapV3SwapCallback>;
+    getContractAt(
+      name: "IERC20Minimal",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC20Minimal>;
+    getContractAt(
+      name: "IUniswapV3Factory",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IUniswapV3Factory>;
+    getContractAt(
+      name: "IUniswapV3Pool",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IUniswapV3Pool>;
+    getContractAt(
+      name: "IUniswapV3PoolDeployer",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IUniswapV3PoolDeployer>;
+    getContractAt(
+      name: "IUniswapV3PoolActions",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IUniswapV3PoolActions>;
+    getContractAt(
+      name: "IUniswapV3PoolDerivedState",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IUniswapV3PoolDerivedState>;
+    getContractAt(
+      name: "IUniswapV3PoolEvents",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IUniswapV3PoolEvents>;
+    getContractAt(
+      name: "IUniswapV3PoolImmutables",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IUniswapV3PoolImmutables>;
+    getContractAt(
+      name: "IUniswapV3PoolOwnerActions",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IUniswapV3PoolOwnerActions>;
+    getContractAt(
+      name: "IUniswapV3PoolState",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IUniswapV3PoolState>;
+    getContractAt(
+      name: "ISwapRouter",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ISwapRouter>;
+    getContractAt(
+      name: "Hypervisor",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Hypervisor>;
+    getContractAt(
+      name: "HypervisorFactory",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.HypervisorFactory>;
+    getContractAt(
+      name: "IHypervisor",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IHypervisor>;
+    getContractAt(
+      name: "IUniversalVault",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IUniversalVault>;
+    getContractAt(
+      name: "IVault",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IVault>;
+    getContractAt(
+      name: "MockUniswapV3Pool",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.MockUniswapV3Pool>;
+    getContractAt(
+      name: "MockUniswapV3PoolDeployer",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.MockUniswapV3PoolDeployer>;
+    getContractAt(
+      name: "TestERC20",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TestERC20>;
+    getContractAt(
+      name: "Admin",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Admin>;
+    getContractAt(
+      name: "Swap",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Swap>;
+    getContractAt(
+      name: "MockToken",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.MockToken>;
+    getContractAt(
+      name: "TestRouter",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TestRouter>;
+    getContractAt(
+      name: "UniProxy",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.UniProxy>;
+
     // default types
     getContractFactory(
       name: string,
@@ -147,5 +303,10 @@ declare module "hardhat/types/runtime" {
       bytecode: ethers.utils.BytesLike,
       signer?: ethers.Signer
     ): Promise<ethers.ContractFactory>;
+    getContractAt(
+      nameOrAbi: string | any[],
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<ethers.Contract>;
   }
 }

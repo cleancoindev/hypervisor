@@ -35,6 +35,7 @@ interface UniProxyInterface extends ethers.utils.Interface {
     "positions(address)": FunctionFragment;
     "priceThreshold()": FunctionFragment;
     "removeListed(address,address)": FunctionFragment;
+    "renounceOwnership()": FunctionFragment;
     "setDeltaScale(uint256)": FunctionFragment;
     "setDepositDelta(uint256)": FunctionFragment;
     "setPriceThreshold(uint256)": FunctionFragment;
@@ -98,6 +99,10 @@ interface UniProxyInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "removeListed",
     values: [string, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "renounceOwnership",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "setDeltaScale",
@@ -187,6 +192,10 @@ interface UniProxyInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "renounceOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setDeltaScale",
     data: BytesLike
   ): Result;
@@ -238,6 +247,7 @@ interface UniProxyInterface extends ethers.utils.Interface {
     "DepositOverrideToggled(address)": EventFragment;
     "ListAppended(address,address[])": EventFragment;
     "ListRemoved(address,address)": EventFragment;
+    "OwnershipTransferred(address,address)": EventFragment;
     "PositionAdded(address,uint8)": EventFragment;
     "PriceThresholdSet(uint256)": EventFragment;
     "TwapIntervalSet(uint32)": EventFragment;
@@ -253,6 +263,7 @@ interface UniProxyInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "DepositOverrideToggled"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ListAppended"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ListRemoved"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PositionAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PriceThresholdSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TwapIntervalSet"): EventFragment;
@@ -293,6 +304,10 @@ export type ListAppendedEvent = TypedEvent<
 
 export type ListRemovedEvent = TypedEvent<
   [string, string] & { pos: string; listed: string }
+>;
+
+export type OwnershipTransferredEvent = TypedEvent<
+  [string, string] & { previousOwner: string; newOwner: string }
 >;
 
 export type PositionAddedEvent = TypedEvent<
@@ -454,6 +469,10 @@ export class UniProxy extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    renounceOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     setDeltaScale(
       _deltaScale: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -599,6 +618,10 @@ export class UniProxy extends BaseContract {
   removeListed(
     pos: string,
     listed: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  renounceOwnership(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -750,6 +773,8 @@ export class UniProxy extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    renounceOwnership(overrides?: CallOverrides): Promise<void>;
+
     setDeltaScale(
       _deltaScale: BigNumberish,
       overrides?: CallOverrides
@@ -878,6 +903,22 @@ export class UniProxy extends BaseContract {
       listed?: null
     ): TypedEventFilter<[string, string], { pos: string; listed: string }>;
 
+    "OwnershipTransferred(address,address)"(
+      previousOwner?: string | null,
+      newOwner?: string | null
+    ): TypedEventFilter<
+      [string, string],
+      { previousOwner: string; newOwner: string }
+    >;
+
+    OwnershipTransferred(
+      previousOwner?: string | null,
+      newOwner?: string | null
+    ): TypedEventFilter<
+      [string, string],
+      { previousOwner: string; newOwner: string }
+    >;
+
     "PositionAdded(address,uint8)"(
       undefined?: null,
       undefined?: null
@@ -991,6 +1032,10 @@ export class UniProxy extends BaseContract {
     removeListed(
       pos: string,
       listed: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1116,6 +1161,10 @@ export class UniProxy extends BaseContract {
     removeListed(
       pos: string,
       listed: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

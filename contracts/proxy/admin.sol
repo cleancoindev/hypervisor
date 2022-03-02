@@ -4,29 +4,19 @@ pragma solidity 0.7.6;
 
 import "../interfaces/IHypervisor.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 
 /// @title Admin
 
-contract Admin {
-
-    address public admin;
-    address public advisor;
-
-    modifier onlyAdvisor {
-        require(msg.sender == advisor, "only advisor");
-        _;
-    }
-
-    modifier onlyAdmin {
-        require(msg.sender == admin, "only admin");
-        _;
-    }
+contract Admin is AccessControl {
+    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
+    bytes32 public constant ADVISOR_ROLE = keccak256("ADVISOR_ROLE");
 
     constructor(address _admin, address _advisor) {
         require(_admin != address(0), "_admin should be non-zero");
         require(_advisor != address(0), "_advisor should be non-zero");
-        admin = _admin;
-        advisor = _advisor;
+        _setupRole(DEFAULT_ADMIN_ROLE, _admin);
+        _setupRole(ADVISOR_ROLE, _advisor);
     }
 
     /// @param _hypervisor Hypervisor Address
@@ -46,7 +36,8 @@ contract Admin {
         int24 _limitUpper,
         address _feeRecipient,
         int256 swapQuantity
-    ) external onlyAdvisor {
+    ) external {
+        require(hasRole(ADVISOR_ROLE, msg.sender));
         IHypervisor(_hypervisor).rebalance(_baseLower, _baseUpper, _limitLower, _limitUpper, _feeRecipient, swapQuantity);
     }
 
@@ -60,20 +51,22 @@ contract Admin {
     function pullLiquidity(
       address _hypervisor,
       uint256 shares
-    ) external onlyAdvisor returns(
+    ) external returns(
         uint256 base0,
         uint256 base1,
         uint256 limit0,
         uint256 limit1
       ) {
-      (base0, base1, limit0, limit1) = IHypervisor(_hypervisor).pullLiquidity(shares);
+        require(hasRole(ADVISOR_ROLE, msg.sender));
+        (base0, base1, limit0, limit1) = IHypervisor(_hypervisor).pullLiquidity(shares);
     }
 
     /// @notice Add tokens to base liquidity
     /// @param _hypervisor Hypervisor Address
     /// @param amount0 Amount of token0 to add
     /// @param amount1 Amount of token1 to add
-    function addBaseLiquidity(address _hypervisor, uint256 amount0, uint256 amount1) external onlyAdvisor {
+    function addBaseLiquidity(address _hypervisor, uint256 amount0, uint256 amount1) external {
+        require(hasRole(ADVISOR_ROLE, msg.sender));
         IHypervisor(_hypervisor).addBaseLiquidity(amount0, amount1);
     }
 
@@ -81,7 +74,8 @@ contract Admin {
     /// @param _hypervisor Hypervisor Address
     /// @param amount0 Amount of token0 to add
     /// @param amount1 Amount of token1 to add
-    function addLimitLiquidity(address _hypervisor, uint256 amount0, uint256 amount1) external onlyAdvisor {
+    function addLimitLiquidity(address _hypervisor, uint256 amount0, uint256 amount1) external {
+        require(hasRole(ADVISOR_ROLE, msg.sender));
         IHypervisor(_hypervisor).addLimitLiquidity(amount0, amount1);
     }
 
@@ -89,63 +83,76 @@ contract Admin {
     /// @param _hypervisor Hypervisor Address
     /// @return fees0 Pending fees of token0
     /// @return fees1 Pending fees of token1
-    function pendingFees(address _hypervisor) external onlyAdvisor returns (uint256 fees0, uint256 fees1) {
+    function pendingFees(address _hypervisor) external returns (uint256 fees0, uint256 fees1) {
+        require(hasRole(ADVISOR_ROLE, msg.sender));
         (fees0, fees1) = IHypervisor(_hypervisor).pendingFees();
     }
 
     /// @param _hypervisor Hypervisor Address
     /// @param _deposit0Max The maximum amount of token0 allowed in a deposit
     /// @param _deposit1Max The maximum amount of token1 allowed in a deposit
-    function setDepositMax(address _hypervisor, uint256 _deposit0Max, uint256 _deposit1Max) external onlyAdmin {
+    function setDepositMax(address _hypervisor, uint256 _deposit0Max, uint256 _deposit1Max) external {
+        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
         IHypervisor(_hypervisor).setDepositMax(_deposit0Max, _deposit1Max);
     }
 
     /// @param _hypervisor Hypervisor Address
     /// @param _maxTotalSupply The maximum liquidity token supply the contract allows
-    function setMaxTotalSupply(address _hypervisor, uint256 _maxTotalSupply) external onlyAdmin {
+    function setMaxTotalSupply(address _hypervisor, uint256 _maxTotalSupply) external {
+        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
         IHypervisor(_hypervisor).setMaxTotalSupply(_maxTotalSupply);
     }
 
     /// @notice Toogle Whitelist configuration
     /// @param _hypervisor Hypervisor Address
-    function toggleWhitelist(address _hypervisor) external onlyAdmin {
+    function toggleWhitelist(address _hypervisor) external {
+        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
         IHypervisor(_hypervisor).toggleWhitelist();
     }
 
     /// @param _hypervisor Hypervisor Address
     /// @param listed Array of addresses to be appended
-    function appendList(address _hypervisor, address[] memory listed) external onlyAdmin {
+    function appendList(address _hypervisor, address[] memory listed) external {
+        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
         IHypervisor(_hypervisor).appendList(listed);
     }
 
     /// @param _hypervisor Hypervisor Address
     /// @param listed Address of listed to remove
-    function removeListed(address _hypervisor, address listed) external onlyAdmin {
+    function removeListed(address _hypervisor, address listed) external {
+        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
         IHypervisor(_hypervisor).removeListed(listed);
     }
 
     /// @param newAdmin New Admin Address
-    function transferAdmin(address newAdmin) external onlyAdmin {
+    function transferAdmin(address newAdmin) external {
+        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
         require(newAdmin != address(0), "newAdmin should be non-zero");
-        admin = newAdmin;
+        revokeRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        grantRole(DEFAULT_ADMIN_ROLE, newAdmin);
     }
 
     /// @param newAdvisor New Advisor Address
-    function transferAdvisor(address newAdvisor) external onlyAdmin {
+    function transferAdvisor(address newAdvisor) external {
+        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
         require(newAdvisor != address(0), "newAdvisor should be non-zero");
-        advisor = newAdvisor;
+        address advisor = getRoleMember(ADVISOR_ROLE, 0);
+        revokeRole(ADVISOR_ROLE, advisor);
+        grantRole(ADVISOR_ROLE, newAdvisor);
     }
 
     /// @param _hypervisor Hypervisor Address
     /// @param newOwner New Owner Address
-    function transferHypervisorOwner(address _hypervisor, address newOwner) external onlyAdmin {
+    function transferHypervisorOwner(address _hypervisor, address newOwner) external {
+        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
         IHypervisor(_hypervisor).transferOwnership(newOwner);
     }
 
     /// @notice Transfer tokens to the recipient from the contract
     /// @param token Address of token
     /// @param recipient Recipient Address
-    function rescueERC20(IERC20 token, address recipient) external onlyAdmin {
+    function rescueERC20(IERC20 token, address recipient) external {
+        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
         require(recipient != address(0), "recipient should be non-zero");
         require(token.transfer(recipient, token.balanceOf(address(this))));
     }

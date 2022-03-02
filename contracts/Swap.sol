@@ -7,17 +7,17 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 import "@uniswap/v3-core/contracts/libraries/TickMath.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 
 /// @title Swap
 
-contract Swap {
+contract Swap is Ownable {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
 
-    address public owner;
     address public recipient;
     address public VISR;
 
@@ -26,15 +26,14 @@ contract Swap {
     event SwapVISR(address token, address recipient, uint256 amountOut);
 
     constructor(
-        address _owner,
+        address _recipient,
         address _router,
         address _VISR
     ) {
-        require(_owner != address(0), "_owner should be non-zero");
+        require(_recipient != address(0), "_recipient should be non-zero");
         require(_router != address(0), "_router should be non-zero");
         require(_VISR != address(0), "_VISR should be non-zero");
-        owner = _owner;
-        recipient = _owner;
+        recipient = _recipient;
         VISR = _VISR;
         router = ISwapRouter(_router);
     }
@@ -72,15 +71,5 @@ contract Swap {
     /// @param amount Amount of tokens to send
     function sendToken(address token, uint256 amount) external onlyOwner {
         IERC20(token).transfer(recipient, amount);
-    }
-
-    function transferOwnership(address newOwner) external onlyOwner {
-        require(newOwner != address(0), "newOwner should be non-zero");
-        owner = newOwner;
-    }
-
-    modifier onlyOwner {
-        require(msg.sender == owner, "only owner");
-        _;
     }
 }

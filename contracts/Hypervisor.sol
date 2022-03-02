@@ -10,6 +10,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/drafts/ERC20Permit.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 
 import "@uniswap/v3-core/contracts/interfaces/callback/IUniswapV3MintCallback.sol";
 import "@uniswap/v3-core/contracts/interfaces/callback/IUniswapV3SwapCallback.sol";
@@ -24,7 +25,7 @@ import "./interfaces/IUniversalVault.sol";
 /// @title Hypervisor
 /// @notice A Uniswap V2-like interface with fungible liquidity to Uniswap V3
 /// which allows for arbitrary liquidity provision: one-sided, lop-sided, and balanced
-contract Hypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallback, ERC20Permit, ReentrancyGuard {
+contract Hypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallback, ERC20Permit, ReentrancyGuard, AccessControl {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
     using SignedSafeMath for int256;
@@ -44,7 +45,6 @@ contract Hypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallback, E
     uint256 public deposit0Max;
     uint256 public deposit1Max;
     uint256 public maxTotalSupply;
-    mapping(address => bool) public list; /// whitelist of depositors
     bool public whitelisted; /// depositors must be on list
     bool public directDeposit; /// enter uni on deposit (avoid if client uses public rpc)
 
@@ -53,6 +53,8 @@ contract Hypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallback, E
     /// events
     event MaxTotalSupplySet(uint256 _maxTotalSupply);
     event DepositMaxSet(uint256 _deposit0Max, uint256 _deposit1Max);
+
+    bytes32 public constant DEPOSITOR = keccak256("DEPOSITOR");
 
     /// @param _pool Uniswap V3 pool for which liquidity is managed
     /// @param _owner Owner of the Hypervisor
@@ -72,7 +74,7 @@ contract Hypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallback, E
         fee = pool.fee();
         tickSpacing = pool.tickSpacing();
 
-        owner = _owner;
+        _setupRole(DEFAULT_ADMIN_ROLE, _owner);
 
         maxTotalSupply = 0; /// no cap
         deposit0Max = uint256(-1);
@@ -95,7 +97,7 @@ contract Hypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallback, E
         require(deposit0 > 0 || deposit1 > 0);
         require(deposit0 <= deposit0Max && deposit1 <= deposit1Max);
         require(to != address(0) && to != address(this), "to");
-        require(!whitelisted || list[msg.sender]);
+        require(!whitelisted || hasRole(DEPOSITOR, from));
 
         /// update fees
         (uint128 baseLiquidity, uint128 limitLiquidity) = zeroBurn();
@@ -165,12 +167,13 @@ contract Hypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallback, E
     /// @return limit1 amount of token1 received from limit position
     function pullLiquidity(
       uint256 shares
-    ) external onlyOwner returns(
+    ) external returns(
         uint256 base0,
         uint256 base1,
         uint256 limit0,
         uint256 limit1
       ) {
+        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
         zeroBurn();
         (base0, base1) = _burnLiquidity(
             baseLower,
@@ -254,7 +257,8 @@ contract Hypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallback, E
         int24 _limitUpper,
         address feeRecipient,
         int256 swapQuantity
-    ) nonReentrant external override onlyOwner {
+    ) nonReentrant external override {
+        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
         require(
             _baseLower < _baseUpper &&
                 _baseLower % tickSpacing == 0 &&
@@ -336,42 +340,44 @@ contract Hypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallback, E
     /// @return baseToken1Owed Pending fees of base token1
     /// @return limitToken0Owed Pending fees of limit token0
     /// @return limitToken1Owed Pending fees of limit token1
-    function compound() external onlyOwner returns (
+    function compound() external returns (
       uint128 baseToken0Owed,
       uint128 baseToken1Owed,
       uint128 limitToken0Owed,
       uint128 limitToken1Owed
     ) {
-      // update fees for compounding
-      zeroBurn();
-      (, baseToken0Owed,baseToken1Owed) = _position(baseLower, baseUpper);
-      (, limitToken0Owed,limitToken1Owed) = _position(limitLower, limitUpper);
-      
-      // collect fees
-      pool.collect(address(this), baseLower, baseLower, baseToken0Owed, baseToken1Owed);
-      pool.collect(address(this), limitLower, limitUpper, limitToken0Owed, limitToken1Owed);
-      
-      uint128 baseLiquidity = _liquidityForAmounts(
-        baseLower,
-        baseUpper,
-        token0.balanceOf(address(this)),
-        token1.balanceOf(address(this))
-      );
-      _mintLiquidity(baseLower, baseUpper, baseLiquidity, address(this));
+        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
+        // update fees for compounding
+        zeroBurn();
+        (, baseToken0Owed,baseToken1Owed) = _position(baseLower, baseUpper);
+        (, limitToken0Owed,limitToken1Owed) = _position(limitLower, limitUpper);
+        
+        // collect fees
+        pool.collect(address(this), baseLower, baseLower, baseToken0Owed, baseToken1Owed);
+        pool.collect(address(this), limitLower, limitUpper, limitToken0Owed, limitToken1Owed);
+        
+        uint128 baseLiquidity = _liquidityForAmounts(
+            baseLower,
+            baseUpper,
+            token0.balanceOf(address(this)),
+            token1.balanceOf(address(this))
+        );
+        _mintLiquidity(baseLower, baseUpper, baseLiquidity, address(this));
 
-      uint128 limitLiquidity = _liquidityForAmounts(
-        limitLower,
-        limitUpper,
-        token0.balanceOf(address(this)),
-        token1.balanceOf(address(this))
-      );
-      _mintLiquidity(limitLower, limitUpper, limitLiquidity, address(this));
+        uint128 limitLiquidity = _liquidityForAmounts(
+            limitLower,
+            limitUpper,
+            token0.balanceOf(address(this)),
+            token1.balanceOf(address(this))
+        );
+        _mintLiquidity(limitLower, limitUpper, limitLiquidity, address(this));
     }
 
     /// @notice Add tokens to base liquidity
     /// @param amount0 Amount of token0 to add
     /// @param amount1 Amount of token1 to add
-    function addBaseLiquidity(uint256 amount0, uint256 amount1) external onlyOwner {
+    function addBaseLiquidity(uint256 amount0, uint256 amount1) external {
+        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
         uint128 baseLiquidity = _liquidityForAmounts(
             baseLower,
             baseUpper,
@@ -384,7 +390,8 @@ contract Hypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallback, E
     /// @notice Add tokens to limit liquidity
     /// @param amount0 Amount of token0 to add
     /// @param amount1 Amount of token1 to add
-    function addLimitLiquidity(uint256 amount0, uint256 amount1) external onlyOwner {
+    function addLimitLiquidity(uint256 amount0, uint256 amount1) external {
+        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
         uint128 limitLiquidity = _liquidityForAmounts(
             limitLower,
             limitUpper,
@@ -632,48 +639,44 @@ contract Hypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallback, E
     }
 
     /// @param _maxTotalSupply The maximum liquidity token supply the contract allows
-    function setMaxTotalSupply(uint256 _maxTotalSupply) external onlyOwner {
+    function setMaxTotalSupply(uint256 _maxTotalSupply) external {
+        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
         maxTotalSupply = _maxTotalSupply;
         emit MaxTotalSupplySet(_maxTotalSupply);
     }
 
     /// @param _deposit0Max The maximum amount of token0 allowed in a deposit
     /// @param _deposit1Max The maximum amount of token1 allowed in a deposit
-    function setDepositMax(uint256 _deposit0Max, uint256 _deposit1Max) external onlyOwner {
+    function setDepositMax(uint256 _deposit0Max, uint256 _deposit1Max) external {
+        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
         deposit0Max = _deposit0Max;
         deposit1Max = _deposit1Max;
         emit DepositMaxSet(_deposit0Max, _deposit1Max);
     }
 
     /// @param listed Array of addresses to be appended
-    function appendList(address[] memory listed) external onlyOwner {
+    function appendList(address[] memory listed) external {
+        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
         for (uint8 i; i < listed.length; i++) {
-            list[listed[i]] = true;
+            grantRole(DEPOSITOR, listed[i]);
         }
     }
 
     /// @param listed Address of listed to remove
-    function removeListed(address listed) external onlyOwner {
-        list[listed] = false;
+    function removeListed(address listed) external {
+        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
+        revokeRole(DEPOSITOR, listed);
     }
 
     /// @notice Toggle Direct Deposit
-    function toggleDirectDeposit() external onlyOwner {
+    function toggleDirectDeposit() external {
+        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
         directDeposit = !directDeposit;
     }
 
     /// @notice Toogle Whitelist configuration
-    function toggleWhitelist() external onlyOwner {
+    function toggleWhitelist() external {
+        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
         whitelisted = !whitelisted;
-    }
-
-    function transferOwnership(address newOwner) external onlyOwner {
-        require(newOwner != address(0));
-        owner = newOwner;
-    }
-
-    modifier onlyOwner {
-        require(msg.sender == owner, "only owner");
-        _;
     }
 }

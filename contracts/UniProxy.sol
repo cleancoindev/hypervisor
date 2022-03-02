@@ -11,17 +11,17 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/math/SignedSafeMath.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@uniswap/v3-core/contracts/libraries/TickMath.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 /// @title UniProxy
 /// @notice Proxy contract for hypervisor positions management
-contract UniProxy is ReentrancyGuard {
+contract UniProxy is ReentrancyGuard, Ownable {
   using SafeERC20 for IERC20;
   using SafeMath for uint256;
   using SignedSafeMath for int256;
 
   mapping(address => Position) public positions;
 
-  address public owner;
   bool public freeDeposit = false;
   bool public twapCheck = false;
   uint32 public twapInterval = 1 hours;
@@ -58,10 +58,6 @@ contract UniProxy is ReentrancyGuard {
   event TwapToggled();
   event ListAppended(address pos, address[] listed);
   event ListRemoved(address pos, address listed);
-
-  constructor() {
-    owner = msg.sender;
-  }
 
   modifier onlyAddedPosition(address pos) {
     Position storage p = positions[pos];
@@ -333,15 +329,5 @@ contract UniProxy is ReentrancyGuard {
     Position storage p = positions[pos];
     p.list[listed] = false;
     emit ListRemoved(pos, listed);
-  }
-
-  function transferOwnership(address newOwner) external onlyOwner {
-    require(newOwner != address(0), "newOwner should be non-zero");
-    owner = newOwner;
-  }
-
-  modifier onlyOwner {
-    require(msg.sender == owner, "only owner");
-    _;
   }
 }

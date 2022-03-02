@@ -25,6 +25,7 @@ interface SwapInterface extends ethers.utils.Interface {
     "changeRecipient(address)": FunctionFragment;
     "owner()": FunctionFragment;
     "recipient()": FunctionFragment;
+    "renounceOwnership()": FunctionFragment;
     "router()": FunctionFragment;
     "sendToken(address,uint256)": FunctionFragment;
     "swap(address,bytes,bool)": FunctionFragment;
@@ -38,6 +39,10 @@ interface SwapInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(functionFragment: "recipient", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "renounceOwnership",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "router", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "sendToken",
@@ -59,6 +64,10 @@ interface SwapInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "recipient", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "renounceOwnership",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "router", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "sendToken", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "swap", data: BytesLike): Result;
@@ -68,11 +77,17 @@ interface SwapInterface extends ethers.utils.Interface {
   ): Result;
 
   events: {
+    "OwnershipTransferred(address,address)": EventFragment;
     "SwapVISR(address,address,uint256)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SwapVISR"): EventFragment;
 }
+
+export type OwnershipTransferredEvent = TypedEvent<
+  [string, string] & { previousOwner: string; newOwner: string }
+>;
 
 export type SwapVISREvent = TypedEvent<
   [string, string, BigNumber] & {
@@ -137,6 +152,10 @@ export class Swap extends BaseContract {
 
     recipient(overrides?: CallOverrides): Promise<[string]>;
 
+    renounceOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     router(overrides?: CallOverrides): Promise<[string]>;
 
     sendToken(
@@ -168,6 +187,10 @@ export class Swap extends BaseContract {
   owner(overrides?: CallOverrides): Promise<string>;
 
   recipient(overrides?: CallOverrides): Promise<string>;
+
+  renounceOwnership(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   router(overrides?: CallOverrides): Promise<string>;
 
@@ -201,6 +224,8 @@ export class Swap extends BaseContract {
 
     recipient(overrides?: CallOverrides): Promise<string>;
 
+    renounceOwnership(overrides?: CallOverrides): Promise<void>;
+
     router(overrides?: CallOverrides): Promise<string>;
 
     sendToken(
@@ -223,6 +248,22 @@ export class Swap extends BaseContract {
   };
 
   filters: {
+    "OwnershipTransferred(address,address)"(
+      previousOwner?: string | null,
+      newOwner?: string | null
+    ): TypedEventFilter<
+      [string, string],
+      { previousOwner: string; newOwner: string }
+    >;
+
+    OwnershipTransferred(
+      previousOwner?: string | null,
+      newOwner?: string | null
+    ): TypedEventFilter<
+      [string, string],
+      { previousOwner: string; newOwner: string }
+    >;
+
     "SwapVISR(address,address,uint256)"(
       token?: null,
       recipient?: null,
@@ -253,6 +294,10 @@ export class Swap extends BaseContract {
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     recipient(overrides?: CallOverrides): Promise<BigNumber>;
+
+    renounceOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     router(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -286,6 +331,10 @@ export class Swap extends BaseContract {
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     recipient(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    renounceOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
 
     router(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

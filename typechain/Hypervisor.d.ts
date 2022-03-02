@@ -21,6 +21,8 @@ import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 
 interface HypervisorInterface extends ethers.utils.Interface {
   functions: {
+    "DEFAULT_ADMIN_ROLE()": FunctionFragment;
+    "DEPOSITOR()": FunctionFragment;
     "DOMAIN_SEPARATOR()": FunctionFragment;
     "PRECISION()": FunctionFragment;
     "addBaseLiquidity(uint256,uint256)": FunctionFragment;
@@ -42,11 +44,15 @@ interface HypervisorInterface extends ethers.utils.Interface {
     "fee()": FunctionFragment;
     "getBasePosition()": FunctionFragment;
     "getLimitPosition()": FunctionFragment;
+    "getRoleAdmin(bytes32)": FunctionFragment;
+    "getRoleMember(bytes32,uint256)": FunctionFragment;
+    "getRoleMemberCount(bytes32)": FunctionFragment;
     "getTotalAmounts()": FunctionFragment;
+    "grantRole(bytes32,address)": FunctionFragment;
+    "hasRole(bytes32,address)": FunctionFragment;
     "increaseAllowance(address,uint256)": FunctionFragment;
     "limitLower()": FunctionFragment;
     "limitUpper()": FunctionFragment;
-    "list(address)": FunctionFragment;
     "maxTotalSupply()": FunctionFragment;
     "name()": FunctionFragment;
     "nonces(address)": FunctionFragment;
@@ -56,6 +62,8 @@ interface HypervisorInterface extends ethers.utils.Interface {
     "pullLiquidity(uint256)": FunctionFragment;
     "rebalance(int24,int24,int24,int24,address,int256)": FunctionFragment;
     "removeListed(address)": FunctionFragment;
+    "renounceRole(bytes32,address)": FunctionFragment;
+    "revokeRole(bytes32,address)": FunctionFragment;
     "setDepositMax(uint256,uint256)": FunctionFragment;
     "setMaxTotalSupply(uint256)": FunctionFragment;
     "symbol()": FunctionFragment;
@@ -67,13 +75,17 @@ interface HypervisorInterface extends ethers.utils.Interface {
     "totalSupply()": FunctionFragment;
     "transfer(address,uint256)": FunctionFragment;
     "transferFrom(address,address,uint256)": FunctionFragment;
-    "transferOwnership(address)": FunctionFragment;
     "uniswapV3MintCallback(uint256,uint256,bytes)": FunctionFragment;
     "uniswapV3SwapCallback(int256,int256,bytes)": FunctionFragment;
     "whitelisted()": FunctionFragment;
     "withdraw(uint256,address,address)": FunctionFragment;
   };
 
+  encodeFunctionData(
+    functionFragment: "DEFAULT_ADMIN_ROLE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "DEPOSITOR", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "DOMAIN_SEPARATOR",
     values?: undefined
@@ -138,8 +150,28 @@ interface HypervisorInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "getRoleAdmin",
+    values: [BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getRoleMember",
+    values: [BytesLike, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getRoleMemberCount",
+    values: [BytesLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "getTotalAmounts",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "grantRole",
+    values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "hasRole",
+    values: [BytesLike, string]
   ): string;
   encodeFunctionData(
     functionFragment: "increaseAllowance",
@@ -153,7 +185,6 @@ interface HypervisorInterface extends ethers.utils.Interface {
     functionFragment: "limitUpper",
     values?: undefined
   ): string;
-  encodeFunctionData(functionFragment: "list", values: [string]): string;
   encodeFunctionData(
     functionFragment: "maxTotalSupply",
     values?: undefined
@@ -194,6 +225,14 @@ interface HypervisorInterface extends ethers.utils.Interface {
     values: [string]
   ): string;
   encodeFunctionData(
+    functionFragment: "renounceRole",
+    values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "revokeRole",
+    values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setDepositMax",
     values: [BigNumberish, BigNumberish]
   ): string;
@@ -229,10 +268,6 @@ interface HypervisorInterface extends ethers.utils.Interface {
     values: [string, string, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "transferOwnership",
-    values: [string]
-  ): string;
-  encodeFunctionData(
     functionFragment: "uniswapV3MintCallback",
     values: [BigNumberish, BigNumberish, BytesLike]
   ): string;
@@ -249,6 +284,11 @@ interface HypervisorInterface extends ethers.utils.Interface {
     values: [BigNumberish, string, string]
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "DEFAULT_ADMIN_ROLE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "DEPOSITOR", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "DOMAIN_SEPARATOR",
     data: BytesLike
@@ -301,16 +341,29 @@ interface HypervisorInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getRoleAdmin",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getRoleMember",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getRoleMemberCount",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getTotalAmounts",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "increaseAllowance",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "limitLower", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "limitUpper", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "list", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "maxTotalSupply",
     data: BytesLike
@@ -329,6 +382,11 @@ interface HypervisorInterface extends ethers.utils.Interface {
     functionFragment: "removeListed",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "renounceRole",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setDepositMax",
     data: BytesLike
@@ -362,10 +420,6 @@ interface HypervisorInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "transferOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "uniswapV3MintCallback",
     data: BytesLike
   ): Result;
@@ -385,6 +439,9 @@ interface HypervisorInterface extends ethers.utils.Interface {
     "DepositMaxSet(uint256,uint256)": EventFragment;
     "MaxTotalSupplySet(uint256)": EventFragment;
     "Rebalance(int24,uint256,uint256,uint256,uint256,uint256)": EventFragment;
+    "RoleAdminChanged(bytes32,bytes32,bytes32)": EventFragment;
+    "RoleGranted(bytes32,address,address)": EventFragment;
+    "RoleRevoked(bytes32,address,address)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
     "Withdraw(address,address,uint256,uint256,uint256)": EventFragment;
   };
@@ -394,6 +451,9 @@ interface HypervisorInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "DepositMaxSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MaxTotalSupplySet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Rebalance"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RoleRevoked"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Withdraw"): EventFragment;
 }
@@ -433,6 +493,22 @@ export type RebalanceEvent = TypedEvent<
     feeAmount1: BigNumber;
     totalSupply: BigNumber;
   }
+>;
+
+export type RoleAdminChangedEvent = TypedEvent<
+  [string, string, string] & {
+    role: string;
+    previousAdminRole: string;
+    newAdminRole: string;
+  }
+>;
+
+export type RoleGrantedEvent = TypedEvent<
+  [string, string, string] & { role: string; account: string; sender: string }
+>;
+
+export type RoleRevokedEvent = TypedEvent<
+  [string, string, string] & { role: string; account: string; sender: string }
 >;
 
 export type TransferEvent = TypedEvent<
@@ -493,6 +569,10 @@ export class Hypervisor extends BaseContract {
   interface: HypervisorInterface;
 
   functions: {
+    DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<[string]>;
+
+    DEPOSITOR(overrides?: CallOverrides): Promise<[string]>;
+
     DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<[string]>;
 
     PRECISION(overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -584,11 +664,36 @@ export class Hypervisor extends BaseContract {
       }
     >;
 
+    getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<[string]>;
+
+    getRoleMember(
+      role: BytesLike,
+      index: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    getRoleMemberCount(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
     getTotalAmounts(
       overrides?: CallOverrides
     ): Promise<
       [BigNumber, BigNumber] & { total0: BigNumber; total1: BigNumber }
     >;
+
+    grantRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    hasRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
     increaseAllowance(
       spender: string,
@@ -599,8 +704,6 @@ export class Hypervisor extends BaseContract {
     limitLower(overrides?: CallOverrides): Promise<[number]>;
 
     limitUpper(overrides?: CallOverrides): Promise<[number]>;
-
-    list(arg0: string, overrides?: CallOverrides): Promise<[boolean]>;
 
     maxTotalSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -640,6 +743,18 @@ export class Hypervisor extends BaseContract {
 
     removeListed(
       listed: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    renounceRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    revokeRole(
+      role: BytesLike,
+      account: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -685,11 +800,6 @@ export class Hypervisor extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    transferOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     uniswapV3MintCallback(
       amount0: BigNumberish,
       amount1: BigNumberish,
@@ -713,6 +823,10 @@ export class Hypervisor extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
+
+  DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
+
+  DEPOSITOR(overrides?: CallOverrides): Promise<string>;
 
   DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<string>;
 
@@ -803,9 +917,34 @@ export class Hypervisor extends BaseContract {
     }
   >;
 
+  getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
+
+  getRoleMember(
+    role: BytesLike,
+    index: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  getRoleMemberCount(
+    role: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   getTotalAmounts(
     overrides?: CallOverrides
   ): Promise<[BigNumber, BigNumber] & { total0: BigNumber; total1: BigNumber }>;
+
+  grantRole(
+    role: BytesLike,
+    account: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  hasRole(
+    role: BytesLike,
+    account: string,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   increaseAllowance(
     spender: string,
@@ -816,8 +955,6 @@ export class Hypervisor extends BaseContract {
   limitLower(overrides?: CallOverrides): Promise<number>;
 
   limitUpper(overrides?: CallOverrides): Promise<number>;
-
-  list(arg0: string, overrides?: CallOverrides): Promise<boolean>;
 
   maxTotalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -857,6 +994,18 @@ export class Hypervisor extends BaseContract {
 
   removeListed(
     listed: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  renounceRole(
+    role: BytesLike,
+    account: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  revokeRole(
+    role: BytesLike,
+    account: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -902,11 +1051,6 @@ export class Hypervisor extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  transferOwnership(
-    newOwner: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   uniswapV3MintCallback(
     amount0: BigNumberish,
     amount1: BigNumberish,
@@ -931,6 +1075,10 @@ export class Hypervisor extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
+
+    DEPOSITOR(overrides?: CallOverrides): Promise<string>;
+
     DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<string>;
 
     PRECISION(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1024,11 +1172,36 @@ export class Hypervisor extends BaseContract {
       }
     >;
 
+    getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
+
+    getRoleMember(
+      role: BytesLike,
+      index: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    getRoleMemberCount(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     getTotalAmounts(
       overrides?: CallOverrides
     ): Promise<
       [BigNumber, BigNumber] & { total0: BigNumber; total1: BigNumber }
     >;
+
+    grantRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    hasRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     increaseAllowance(
       spender: string,
@@ -1039,8 +1212,6 @@ export class Hypervisor extends BaseContract {
     limitLower(overrides?: CallOverrides): Promise<number>;
 
     limitUpper(overrides?: CallOverrides): Promise<number>;
-
-    list(arg0: string, overrides?: CallOverrides): Promise<boolean>;
 
     maxTotalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1087,6 +1258,18 @@ export class Hypervisor extends BaseContract {
 
     removeListed(listed: string, overrides?: CallOverrides): Promise<void>;
 
+    renounceRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    revokeRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     setDepositMax(
       _deposit0Max: BigNumberish,
       _deposit1Max: BigNumberish,
@@ -1124,11 +1307,6 @@ export class Hypervisor extends BaseContract {
       amount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<boolean>;
-
-    transferOwnership(
-      newOwner: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     uniswapV3MintCallback(
       amount0: BigNumberish,
@@ -1271,6 +1449,60 @@ export class Hypervisor extends BaseContract {
       }
     >;
 
+    "RoleAdminChanged(bytes32,bytes32,bytes32)"(
+      role?: BytesLike | null,
+      previousAdminRole?: BytesLike | null,
+      newAdminRole?: BytesLike | null
+    ): TypedEventFilter<
+      [string, string, string],
+      { role: string; previousAdminRole: string; newAdminRole: string }
+    >;
+
+    RoleAdminChanged(
+      role?: BytesLike | null,
+      previousAdminRole?: BytesLike | null,
+      newAdminRole?: BytesLike | null
+    ): TypedEventFilter<
+      [string, string, string],
+      { role: string; previousAdminRole: string; newAdminRole: string }
+    >;
+
+    "RoleGranted(bytes32,address,address)"(
+      role?: BytesLike | null,
+      account?: string | null,
+      sender?: string | null
+    ): TypedEventFilter<
+      [string, string, string],
+      { role: string; account: string; sender: string }
+    >;
+
+    RoleGranted(
+      role?: BytesLike | null,
+      account?: string | null,
+      sender?: string | null
+    ): TypedEventFilter<
+      [string, string, string],
+      { role: string; account: string; sender: string }
+    >;
+
+    "RoleRevoked(bytes32,address,address)"(
+      role?: BytesLike | null,
+      account?: string | null,
+      sender?: string | null
+    ): TypedEventFilter<
+      [string, string, string],
+      { role: string; account: string; sender: string }
+    >;
+
+    RoleRevoked(
+      role?: BytesLike | null,
+      account?: string | null,
+      sender?: string | null
+    ): TypedEventFilter<
+      [string, string, string],
+      { role: string; account: string; sender: string }
+    >;
+
     "Transfer(address,address,uint256)"(
       from?: string | null,
       to?: string | null,
@@ -1325,6 +1557,10 @@ export class Hypervisor extends BaseContract {
   };
 
   estimateGas: {
+    DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    DEPOSITOR(overrides?: CallOverrides): Promise<BigNumber>;
+
     DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<BigNumber>;
 
     PRECISION(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1398,7 +1634,35 @@ export class Hypervisor extends BaseContract {
 
     getLimitPosition(overrides?: CallOverrides): Promise<BigNumber>;
 
+    getRoleAdmin(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getRoleMember(
+      role: BytesLike,
+      index: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getRoleMemberCount(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     getTotalAmounts(overrides?: CallOverrides): Promise<BigNumber>;
+
+    grantRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    hasRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     increaseAllowance(
       spender: string,
@@ -1409,8 +1673,6 @@ export class Hypervisor extends BaseContract {
     limitLower(overrides?: CallOverrides): Promise<BigNumber>;
 
     limitUpper(overrides?: CallOverrides): Promise<BigNumber>;
-
-    list(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     maxTotalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1450,6 +1712,18 @@ export class Hypervisor extends BaseContract {
 
     removeListed(
       listed: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    renounceRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    revokeRole(
+      role: BytesLike,
+      account: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1495,11 +1769,6 @@ export class Hypervisor extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    transferOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     uniswapV3MintCallback(
       amount0: BigNumberish,
       amount1: BigNumberish,
@@ -1525,6 +1794,12 @@ export class Hypervisor extends BaseContract {
   };
 
   populateTransaction: {
+    DEFAULT_ADMIN_ROLE(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    DEPOSITOR(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     PRECISION(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1601,7 +1876,35 @@ export class Hypervisor extends BaseContract {
 
     getLimitPosition(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    getRoleAdmin(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getRoleMember(
+      role: BytesLike,
+      index: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getRoleMemberCount(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     getTotalAmounts(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    grantRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    hasRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     increaseAllowance(
       spender: string,
@@ -1612,11 +1915,6 @@ export class Hypervisor extends BaseContract {
     limitLower(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     limitUpper(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    list(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
 
     maxTotalSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1662,6 +1960,18 @@ export class Hypervisor extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    renounceRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    revokeRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     setDepositMax(
       _deposit0Max: BigNumberish,
       _deposit1Max: BigNumberish,
@@ -1701,11 +2011,6 @@ export class Hypervisor extends BaseContract {
       sender: string,
       recipient: string,
       amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    transferOwnership(
-      newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

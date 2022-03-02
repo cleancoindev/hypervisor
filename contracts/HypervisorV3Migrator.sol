@@ -1,23 +1,18 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
-pragma solidity =0.7.6;
+pragma solidity 0.7.6;
 pragma abicoder v2;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
-
 import '@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol';
 import '@uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol';
-
 import '@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol';
-
 import './interfaces/IHypervisor.sol';
 import './interfaces/IUniProxy.sol';
 
 /// @title HyperVisor V3 Migrator
 /// @notice Migrate tokens from uniswapV2 to Hypervisor
-
 contract HypervisorV3Migrator {
     using SafeMath for uint256;
-    
     IUniswapV2Factory public uniswapV2Factory;
     IUniProxy public uniProxy;
 
@@ -53,7 +48,7 @@ contract HypervisorV3Migrator {
         uint256 amount0V2ToMigrate;
         ( , amount0V2ToMigrate) = uniProxy.getDepositAmount(
             _hypervisor,
-            address(address(hypervisor.token1())),
+            address(hypervisor.token1()),
             amount1V2ToMigrate
         );
 

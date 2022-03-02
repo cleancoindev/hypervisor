@@ -24,15 +24,12 @@ interface IHypervisorInterface extends ethers.utils.Interface {
     "addBaseLiquidity(uint256,uint256)": FunctionFragment;
     "addLimitLiquidity(uint256,uint256)": FunctionFragment;
     "appendList(address[])": FunctionFragment;
-    "approve(address,uint256)": FunctionFragment;
-    "balanceOf(address)": FunctionFragment;
     "compound()": FunctionFragment;
     "currentTick()": FunctionFragment;
     "deposit(uint256,uint256,address,address)": FunctionFragment;
     "deposit0Max()": FunctionFragment;
     "deposit1Max()": FunctionFragment;
     "getTotalAmounts()": FunctionFragment;
-    "pendingFees()": FunctionFragment;
     "pool()": FunctionFragment;
     "pullLiquidity(uint256)": FunctionFragment;
     "rebalance(int24,int24,int24,int24,address,int256)": FunctionFragment;
@@ -44,7 +41,6 @@ interface IHypervisorInterface extends ethers.utils.Interface {
     "token1()": FunctionFragment;
     "totalSupply()": FunctionFragment;
     "transfer(address,uint256)": FunctionFragment;
-    "transferFrom(address,address,uint256)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
     "withdraw(uint256,address,address)": FunctionFragment;
   };
@@ -61,11 +57,6 @@ interface IHypervisorInterface extends ethers.utils.Interface {
     functionFragment: "appendList",
     values: [string[]]
   ): string;
-  encodeFunctionData(
-    functionFragment: "approve",
-    values: [string, BigNumberish]
-  ): string;
-  encodeFunctionData(functionFragment: "balanceOf", values: [string]): string;
   encodeFunctionData(functionFragment: "compound", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "currentTick",
@@ -85,10 +76,6 @@ interface IHypervisorInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getTotalAmounts",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "pendingFees",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "pool", values?: undefined): string;
@@ -134,10 +121,6 @@ interface IHypervisorInterface extends ethers.utils.Interface {
     values: [string, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "transferFrom",
-    values: [string, string, BigNumberish]
-  ): string;
-  encodeFunctionData(
     functionFragment: "transferOwnership",
     values: [string]
   ): string;
@@ -155,8 +138,6 @@ interface IHypervisorInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "appendList", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "compound", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "currentTick",
@@ -173,10 +154,6 @@ interface IHypervisorInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getTotalAmounts",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "pendingFees",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "pool", data: BytesLike): Result;
@@ -208,10 +185,6 @@ interface IHypervisorInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "transfer", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "transferFrom",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "transferOwnership",
     data: BytesLike
@@ -282,14 +255,6 @@ export class IHypervisor extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    approve(
-      arg0: string,
-      arg1: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    balanceOf(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
-
     compound(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -322,10 +287,6 @@ export class IHypervisor extends BaseContract {
     ): Promise<
       [BigNumber, BigNumber] & { total0: BigNumber; total1: BigNumber }
     >;
-
-    pendingFees(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
 
     pool(overrides?: CallOverrides): Promise<[string]>;
 
@@ -376,13 +337,6 @@ export class IHypervisor extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    transferFrom(
-      arg0: string,
-      arg1: string,
-      arg2: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     transferOwnership(
       newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -413,14 +367,6 @@ export class IHypervisor extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  approve(
-    arg0: string,
-    arg1: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  balanceOf(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
-
   compound(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -449,10 +395,6 @@ export class IHypervisor extends BaseContract {
   getTotalAmounts(
     overrides?: CallOverrides
   ): Promise<[BigNumber, BigNumber] & { total0: BigNumber; total1: BigNumber }>;
-
-  pendingFees(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
 
   pool(overrides?: CallOverrides): Promise<string>;
 
@@ -503,13 +445,6 @@ export class IHypervisor extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  transferFrom(
-    arg0: string,
-    arg1: string,
-    arg2: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   transferOwnership(
     newOwner: string,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -536,14 +471,6 @@ export class IHypervisor extends BaseContract {
     ): Promise<void>;
 
     appendList(listed: string[], overrides?: CallOverrides): Promise<void>;
-
-    approve(
-      arg0: string,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    balanceOf(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     compound(
       overrides?: CallOverrides
@@ -582,10 +509,6 @@ export class IHypervisor extends BaseContract {
     ): Promise<
       [BigNumber, BigNumber] & { total0: BigNumber; total1: BigNumber }
     >;
-
-    pendingFees(
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber] & { fees0: BigNumber; fees1: BigNumber }>;
 
     pool(overrides?: CallOverrides): Promise<string>;
 
@@ -638,13 +561,6 @@ export class IHypervisor extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    transferFrom(
-      arg0: string,
-      arg1: string,
-      arg2: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
     transferOwnership(
       newOwner: string,
       overrides?: CallOverrides
@@ -678,14 +594,6 @@ export class IHypervisor extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    approve(
-      arg0: string,
-      arg1: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    balanceOf(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
-
     compound(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -712,10 +620,6 @@ export class IHypervisor extends BaseContract {
     deposit1Max(overrides?: CallOverrides): Promise<BigNumber>;
 
     getTotalAmounts(overrides?: CallOverrides): Promise<BigNumber>;
-
-    pendingFees(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
 
     pool(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -766,13 +670,6 @@ export class IHypervisor extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    transferFrom(
-      arg0: string,
-      arg1: string,
-      arg2: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     transferOwnership(
       newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -804,17 +701,6 @@ export class IHypervisor extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    approve(
-      arg0: string,
-      arg1: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    balanceOf(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     compound(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
@@ -841,10 +727,6 @@ export class IHypervisor extends BaseContract {
     deposit1Max(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getTotalAmounts(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    pendingFees(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
 
     pool(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -892,13 +774,6 @@ export class IHypervisor extends BaseContract {
     transfer(
       arg0: string,
       arg1: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    transferFrom(
-      arg0: string,
-      arg1: string,
-      arg2: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

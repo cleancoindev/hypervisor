@@ -11,14 +11,12 @@ import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/drafts/ERC20Permit.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
-
 import "@uniswap/v3-core/contracts/interfaces/callback/IUniswapV3MintCallback.sol";
 import "@uniswap/v3-core/contracts/interfaces/callback/IUniswapV3SwapCallback.sol";
 import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Pool.sol";
 import "@uniswap/v3-core/contracts/libraries/TickMath.sol";
 import "@uniswap/v3-core/contracts/libraries/FullMath.sol";
 import "@uniswap/v3-periphery/contracts/libraries/LiquidityAmounts.sol";
-
 import "./interfaces/IVault.sol";
 import "./interfaces/IUniversalVault.sol";
 
@@ -41,7 +39,6 @@ contract Hypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallback, E
     int24 public limitLower;
     int24 public limitUpper;
 
-    address public owner;
     uint256 public deposit0Max;
     uint256 public deposit1Max;
     uint256 public maxTotalSupply;
@@ -76,9 +73,9 @@ contract Hypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallback, E
 
         _setupRole(DEFAULT_ADMIN_ROLE, _owner);
 
-        maxTotalSupply = 0; /// no cap
-        deposit0Max = uint256(-1);
-        deposit1Max = uint256(-1);
+        maxTotalSupply = type(uint256).max; /// no cap
+        deposit0Max = type(uint256).max;
+        deposit1Max = type(uint256).max;
         whitelisted = false;
     }
 
@@ -100,7 +97,7 @@ contract Hypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallback, E
         require(!whitelisted || hasRole(DEPOSITOR, from));
 
         /// update fees
-        (uint128 baseLiquidity, uint128 limitLiquidity) = zeroBurn();
+        zeroBurn();
 
         uint160 sqrtPrice = TickMath.getSqrtRatioAtTick(currentTick());
         uint256 price = FullMath.mulDiv(uint256(sqrtPrice).mul(uint256(sqrtPrice)), PRECISION, 2**(96 * 2));
@@ -121,21 +118,8 @@ contract Hypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallback, E
           uint256 pool0PricedInToken1 = pool0.mul(price).div(PRECISION);
           shares = shares.mul(total).div(pool0PricedInToken1.add(pool1));
           if (directDeposit) {
-            baseLiquidity = _liquidityForAmounts(
-                baseLower,
-                baseUpper,
-                token0.balanceOf(address(this)),
-                token1.balanceOf(address(this))
-            );
-            _mintLiquidity(baseLower, baseUpper, baseLiquidity, address(this));
-
-            limitLiquidity = _liquidityForAmounts(
-                limitLower,
-                limitUpper,
-                token0.balanceOf(address(this)),
-                token1.balanceOf(address(this))
-            );
-            _mintLiquidity(limitLower, limitUpper, limitLiquidity, address(this));
+            addLiquidity(baseLower, baseUpper, token0.balanceOf(address(this)), token1.balanceOf(address(this)));
+            addLiquidity(limitLower, limitUpper, token0.balanceOf(address(this)), token1.balanceOf(address(this)));
           }
         }
         _mint(to, shares);
@@ -316,23 +300,11 @@ contract Hypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallback, E
 
         baseLower = _baseLower;
         baseUpper = _baseUpper;
-        baseLiquidity = _liquidityForAmounts(
-            baseLower,
-            baseUpper,
-            token0.balanceOf(address(this)),
-            token1.balanceOf(address(this))
-        );
-        _mintLiquidity(baseLower, baseUpper, baseLiquidity, address(this));
-
+        addLiquidity(baseLower, baseUpper, token0.balanceOf(address(this)), token1.balanceOf(address(this)));
+        
         limitLower = _limitLower;
         limitUpper = _limitUpper;
-        limitLiquidity = _liquidityForAmounts(
-            limitLower,
-            limitUpper,
-            token0.balanceOf(address(this)),
-            token1.balanceOf(address(this))
-        );
-        _mintLiquidity(limitLower, limitUpper, limitLiquidity, address(this));
+        addLiquidity(limitLower, limitUpper, token0.balanceOf(address(this)), token1.balanceOf(address(this)));
     }
 
     /// @notice Compound pending fees
@@ -356,21 +328,22 @@ contract Hypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallback, E
         pool.collect(address(this), baseLower, baseLower, baseToken0Owed, baseToken1Owed);
         pool.collect(address(this), limitLower, limitUpper, limitToken0Owed, limitToken1Owed);
         
-        uint128 baseLiquidity = _liquidityForAmounts(
-            baseLower,
-            baseUpper,
-            token0.balanceOf(address(this)),
-            token1.balanceOf(address(this))
-        );
-        _mintLiquidity(baseLower, baseUpper, baseLiquidity, address(this));
+        addLiquidity(baseLower, baseUpper, token0.balanceOf(address(this)), token1.balanceOf(address(this)));
+        addLiquidity(limitLower, limitUpper, token0.balanceOf(address(this)), token1.balanceOf(address(this)));
+    }
 
-        uint128 limitLiquidity = _liquidityForAmounts(
-            limitLower,
-            limitUpper,
-            token0.balanceOf(address(this)),
-            token1.balanceOf(address(this))
-        );
-        _mintLiquidity(limitLower, limitUpper, limitLiquidity, address(this));
+    /// @param tickLower The lower tick of the position in which to add liquidity
+    /// @param tickUpper The upper tick of the position in which to add liquidity
+    /// @param amount0 The amount of token0 to add
+    /// @param amount1 The amount of token1 to add
+    function addLiquidity(
+        int24 tickLower,
+        int24 tickUpper,
+        uint256 amount0,
+        uint256 amount1
+    ) internal {
+        uint128 liquidity = _liquidityForAmounts(tickLower, tickUpper, amount0, amount1);
+        _mintLiquidity(tickLower, tickUpper, liquidity, address(this));
     }
 
     /// @notice Add tokens to base liquidity
@@ -378,13 +351,15 @@ contract Hypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallback, E
     /// @param amount1 Amount of token1 to add
     function addBaseLiquidity(uint256 amount0, uint256 amount1) external {
         require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
-        uint128 baseLiquidity = _liquidityForAmounts(
+        uint256 balance0 = token0.balanceOf(address(this));
+        uint256 balance1 = token1.balanceOf(address(this));
+        require(balance0 >= amount0 && balance1 >= amount1);
+        addLiquidity(
             baseLower,
             baseUpper,
-            amount0 == 0 && amount1 == 0 ? token0.balanceOf(address(this)) : amount0,
-            amount0 == 0 && amount1 == 0 ? token1.balanceOf(address(this)) : amount1
+            amount0 == 0 && amount1 == 0 ? balance0 : amount0,
+            amount0 == 0 && amount1 == 0 ? balance1 : amount1
         );
-        _mintLiquidity(baseLower, baseUpper, baseLiquidity, address(this));
     }
 
     /// @notice Add tokens to limit liquidity
@@ -392,13 +367,15 @@ contract Hypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallback, E
     /// @param amount1 Amount of token1 to add
     function addLimitLiquidity(uint256 amount0, uint256 amount1) external {
         require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
-        uint128 limitLiquidity = _liquidityForAmounts(
+        uint256 balance0 = token0.balanceOf(address(this));
+        uint256 balance1 = token1.balanceOf(address(this));
+        require(balance0 >= amount0 && balance1 >= amount1);
+        addLiquidity(
             limitLower,
             limitUpper,
-            amount0 == 0 && amount1 == 0 ? token0.balanceOf(address(this)) : amount0,
-            amount0 == 0 && amount1 == 0 ? token1.balanceOf(address(this)) : amount1
+            amount0 == 0 && amount1 == 0 ? balance0 : amount0,
+            amount0 == 0 && amount1 == 0 ? balance1 : amount1
         );
-        _mintLiquidity(limitLower, limitUpper, limitLiquidity, address(this));
     }
 
     /// @notice Adds the liquidity for the given position
@@ -649,8 +626,12 @@ contract Hypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallback, E
     /// @param _deposit1Max The maximum amount of token1 allowed in a deposit
     function setDepositMax(uint256 _deposit0Max, uint256 _deposit1Max) external {
         require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
-        deposit0Max = _deposit0Max;
-        deposit1Max = _deposit1Max;
+        if (deposit0Max != _deposit0Max) {
+            deposit0Max = _deposit0Max;
+        }
+        if (deposit1Max != _deposit1Max) {
+            deposit1Max = _deposit1Max;
+        }
         emit DepositMaxSet(_deposit0Max, _deposit1Max);
     }
 

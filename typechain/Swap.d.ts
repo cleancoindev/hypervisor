@@ -21,7 +21,7 @@ import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 
 interface SwapInterface extends ethers.utils.Interface {
   functions: {
-    "VISR()": FunctionFragment;
+    "GAMMA()": FunctionFragment;
     "changeRecipient(address)": FunctionFragment;
     "owner()": FunctionFragment;
     "recipient()": FunctionFragment;
@@ -32,7 +32,7 @@ interface SwapInterface extends ethers.utils.Interface {
     "transferOwnership(address)": FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: "VISR", values?: undefined): string;
+  encodeFunctionData(functionFragment: "GAMMA", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "changeRecipient",
     values: [string]
@@ -57,7 +57,7 @@ interface SwapInterface extends ethers.utils.Interface {
     values: [string]
   ): string;
 
-  decodeFunctionResult(functionFragment: "VISR", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "GAMMA", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "changeRecipient",
     data: BytesLike
@@ -78,18 +78,18 @@ interface SwapInterface extends ethers.utils.Interface {
 
   events: {
     "OwnershipTransferred(address,address)": EventFragment;
-    "SwapVISR(address,address,uint256)": EventFragment;
+    "SwapGAMMA(address,address,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "SwapVISR"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SwapGAMMA"): EventFragment;
 }
 
 export type OwnershipTransferredEvent = TypedEvent<
   [string, string] & { previousOwner: string; newOwner: string }
 >;
 
-export type SwapVISREvent = TypedEvent<
+export type SwapGAMMAEvent = TypedEvent<
   [string, string, BigNumber] & {
     token: string;
     recipient: string;
@@ -141,7 +141,7 @@ export class Swap extends BaseContract {
   interface: SwapInterface;
 
   functions: {
-    VISR(overrides?: CallOverrides): Promise<[string]>;
+    GAMMA(overrides?: CallOverrides): Promise<[string]>;
 
     changeRecipient(
       _recipient: string,
@@ -177,7 +177,7 @@ export class Swap extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
-  VISR(overrides?: CallOverrides): Promise<string>;
+  GAMMA(overrides?: CallOverrides): Promise<string>;
 
   changeRecipient(
     _recipient: string,
@@ -213,7 +213,7 @@ export class Swap extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    VISR(overrides?: CallOverrides): Promise<string>;
+    GAMMA(overrides?: CallOverrides): Promise<string>;
 
     changeRecipient(
       _recipient: string,
@@ -264,7 +264,7 @@ export class Swap extends BaseContract {
       { previousOwner: string; newOwner: string }
     >;
 
-    "SwapVISR(address,address,uint256)"(
+    "SwapGAMMA(address,address,uint256)"(
       token?: null,
       recipient?: null,
       amountOut?: null
@@ -273,7 +273,7 @@ export class Swap extends BaseContract {
       { token: string; recipient: string; amountOut: BigNumber }
     >;
 
-    SwapVISR(
+    SwapGAMMA(
       token?: null,
       recipient?: null,
       amountOut?: null
@@ -284,7 +284,7 @@ export class Swap extends BaseContract {
   };
 
   estimateGas: {
-    VISR(overrides?: CallOverrides): Promise<BigNumber>;
+    GAMMA(overrides?: CallOverrides): Promise<BigNumber>;
 
     changeRecipient(
       _recipient: string,
@@ -321,7 +321,7 @@ export class Swap extends BaseContract {
   };
 
   populateTransaction: {
-    VISR(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    GAMMA(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     changeRecipient(
       _recipient: string,

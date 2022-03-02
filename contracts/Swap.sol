@@ -8,37 +8,33 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-
 import "@uniswap/v3-core/contracts/libraries/TickMath.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 
 /// @title Swap
-
 contract Swap is Ownable {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
-
     address public recipient;
-    address public VISR;
-
+    address public GAMMA;
     ISwapRouter public router;
 
-    event SwapVISR(address token, address recipient, uint256 amountOut);
+    event SwapGAMMA(address token, address recipient, uint256 amountOut);
 
     constructor(
         address _recipient,
         address _router,
-        address _VISR
+        address _GAMMA
     ) {
         require(_recipient != address(0), "_recipient should be non-zero");
         require(_router != address(0), "_router should be non-zero");
-        require(_VISR != address(0), "_VISR should be non-zero");
+        require(_GAMMA != address(0), "_GAMMA should be non-zero");
         recipient = _recipient;
-        VISR = _VISR;
+        GAMMA = _GAMMA;
         router = ISwapRouter(_router);
     }
 
-    /// @notice Swap given token with VISR via ISwapRouter
+    /// @notice Swap given token with GAMMA via ISwapRouter
     /// @param token Address of token to twap
     /// @param path Path info for router
     /// @param send Boolean variable for sending to recipient or contract
@@ -58,7 +54,7 @@ contract Swap is Ownable {
                 0
             )
         );
-        emit SwapVISR(token, send ? recipient : address(this), amountOut);
+        emit SwapGAMMA(token, send ? recipient : address(this), amountOut);
     }
 
     /// @param _recipient Address of the recipient

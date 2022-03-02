@@ -7,9 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
 /// @title Admin
-
 contract Admin is AccessControl {
-    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
     bytes32 public constant ADVISOR_ROLE = keccak256("ADVISOR_ROLE");
 
     constructor(address _admin, address _advisor) {
@@ -79,13 +77,20 @@ contract Admin is AccessControl {
         IHypervisor(_hypervisor).addLimitLiquidity(amount0, amount1);
     }
 
-    /// @notice Get the pending fees
+    /// @notice Compound pending fees
     /// @param _hypervisor Hypervisor Address
-    /// @return fees0 Pending fees of token0
-    /// @return fees1 Pending fees of token1
-    function pendingFees(address _hypervisor) external returns (uint256 fees0, uint256 fees1) {
+    /// @return baseToken0Owed Pending fees of base token0
+    /// @return baseToken1Owed Pending fees of base token1
+    /// @return limitToken0Owed Pending fees of limit token0
+    /// @return limitToken1Owed Pending fees of limit token1
+    function compound(address _hypervisor) external returns (
+      uint128 baseToken0Owed,
+      uint128 baseToken1Owed,
+      uint128 limitToken0Owed,
+      uint128 limitToken1Owed
+    ) {
         require(hasRole(ADVISOR_ROLE, msg.sender));
-        (fees0, fees1) = IHypervisor(_hypervisor).pendingFees();
+        (baseToken0Owed, baseToken1Owed, limitToken0Owed, limitToken1Owed) = IHypervisor(_hypervisor).compound();
     }
 
     /// @param _hypervisor Hypervisor Address

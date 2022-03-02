@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: BUSL-1.1
 
-pragma solidity =0.7.6;
+pragma solidity 0.7.6;
 pragma abicoder v2;
 
 interface IUniProxy {
-
   function deposit(
     uint256 deposit0,
     uint256 deposit1,

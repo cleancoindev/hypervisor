@@ -4,13 +4,11 @@ pragma abicoder v2;
 
 interface IUniversalVault {
     /* user events */
-
     event Locked(address delegate, address token, uint256 amount);
     event Unlocked(address delegate, address token, uint256 amount);
     event RageQuit(address delegate, address token, bool notified, string reason);
 
     /* data types */
-
     struct LockData {
         address delegate;
         address token;
@@ -18,11 +16,9 @@ interface IUniversalVault {
     }
 
     /* initialize function */
-
     function initialize() external;
 
     /* user functions */
-
     function lock(
         address token,
         uint256 amount,
@@ -48,14 +44,12 @@ interface IUniversalVault {
     function transferETH(address to, uint256 amount) external payable;
 
     /* pure functions */
-
     function calculateLockID(address delegate, address token)
         external
         pure
         returns (bytes32 lockID);
 
     /* getter functions */
-
     function getPermissionHash(
         bytes32 eip712TypeHash,
         address delegate,

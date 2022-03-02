@@ -1,14 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity =0.7.6;
+pragma solidity 0.7.6;
 
-import {IUniswapV3Factory} from '@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol';
-
-import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
-
-import {Hypervisor} from './Hypervisor.sol';
+import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "./Hypervisor.sol";
 
 /// @title HypervisorFactory
-
 contract HypervisorFactory is Ownable {
     IUniswapV3Factory public uniswapV3Factory;
     mapping(address => mapping(address => mapping(uint24 => address))) public getHypervisor; // toke0, token1, fee -> hypervisor address
@@ -41,12 +38,12 @@ contract HypervisorFactory is Ownable {
         string memory name,
         string memory symbol
     ) external onlyOwner returns (address hypervisor) {
-        require(tokenA != tokenB, 'SF: IDENTICAL_ADDRESSES'); // TODO: using PoolAddress library (uniswap-v3-periphery)
+        require(tokenA != tokenB, 'IDENTICAL_ADDRESSES'); // TODO: using PoolAddress library (uniswap-v3-periphery)
         (address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
-        require(token0 != address(0), 'SF: ZERO_ADDRESS');
-        require(getHypervisor[token0][token1][fee] == address(0), 'SF: HYPERVISOR_EXISTS');
+        require(token0 != address(0), 'ZERO_ADDRESS');
+        require(getHypervisor[token0][token1][fee] == address(0), 'EXISTS');
         int24 tickSpacing = uniswapV3Factory.feeAmountTickSpacing(fee);
-        require(tickSpacing != 0, 'SF: INCORRECT_FEE');
+        require(tickSpacing != 0, 'INCORRECT_FEE');
         address pool = uniswapV3Factory.getPool(token0, token1, fee);
         if (pool == address(0)) {
             pool = uniswapV3Factory.createPool(token0, token1, fee);

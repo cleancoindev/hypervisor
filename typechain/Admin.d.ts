@@ -21,18 +21,17 @@ import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 
 interface AdminInterface extends ethers.utils.Interface {
   functions: {
-    "ADMIN_ROLE()": FunctionFragment;
     "ADVISOR_ROLE()": FunctionFragment;
     "DEFAULT_ADMIN_ROLE()": FunctionFragment;
     "addBaseLiquidity(address,uint256,uint256)": FunctionFragment;
     "addLimitLiquidity(address,uint256,uint256)": FunctionFragment;
     "appendList(address,address[])": FunctionFragment;
+    "compound(address)": FunctionFragment;
     "getRoleAdmin(bytes32)": FunctionFragment;
     "getRoleMember(bytes32,uint256)": FunctionFragment;
     "getRoleMemberCount(bytes32)": FunctionFragment;
     "grantRole(bytes32,address)": FunctionFragment;
     "hasRole(bytes32,address)": FunctionFragment;
-    "pendingFees(address)": FunctionFragment;
     "pullLiquidity(address,uint256)": FunctionFragment;
     "rebalance(address,int24,int24,int24,int24,address,int256)": FunctionFragment;
     "removeListed(address,address)": FunctionFragment;
@@ -47,10 +46,6 @@ interface AdminInterface extends ethers.utils.Interface {
     "transferHypervisorOwner(address,address)": FunctionFragment;
   };
 
-  encodeFunctionData(
-    functionFragment: "ADMIN_ROLE",
-    values?: undefined
-  ): string;
   encodeFunctionData(
     functionFragment: "ADVISOR_ROLE",
     values?: undefined
@@ -71,6 +66,7 @@ interface AdminInterface extends ethers.utils.Interface {
     functionFragment: "appendList",
     values: [string, string[]]
   ): string;
+  encodeFunctionData(functionFragment: "compound", values: [string]): string;
   encodeFunctionData(
     functionFragment: "getRoleAdmin",
     values: [BytesLike]
@@ -91,7 +87,6 @@ interface AdminInterface extends ethers.utils.Interface {
     functionFragment: "hasRole",
     values: [BytesLike, string]
   ): string;
-  encodeFunctionData(functionFragment: "pendingFees", values: [string]): string;
   encodeFunctionData(
     functionFragment: "pullLiquidity",
     values: [string, BigNumberish]
@@ -149,7 +144,6 @@ interface AdminInterface extends ethers.utils.Interface {
     values: [string, string]
   ): string;
 
-  decodeFunctionResult(functionFragment: "ADMIN_ROLE", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "ADVISOR_ROLE",
     data: BytesLike
@@ -167,6 +161,7 @@ interface AdminInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "appendList", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "compound", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getRoleAdmin",
     data: BytesLike
@@ -181,10 +176,6 @@ interface AdminInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "pendingFees",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "pullLiquidity",
     data: BytesLike
@@ -299,8 +290,6 @@ export class Admin extends BaseContract {
   interface: AdminInterface;
 
   functions: {
-    ADMIN_ROLE(overrides?: CallOverrides): Promise<[string]>;
-
     ADVISOR_ROLE(overrides?: CallOverrides): Promise<[string]>;
 
     DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<[string]>;
@@ -322,6 +311,11 @@ export class Admin extends BaseContract {
     appendList(
       _hypervisor: string,
       listed: string[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    compound(
+      _hypervisor: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -349,11 +343,6 @@ export class Admin extends BaseContract {
       account: string,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
-
-    pendingFees(
-      _hypervisor: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
 
     pullLiquidity(
       _hypervisor: string,
@@ -431,8 +420,6 @@ export class Admin extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
-  ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
-
   ADVISOR_ROLE(overrides?: CallOverrides): Promise<string>;
 
   DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
@@ -454,6 +441,11 @@ export class Admin extends BaseContract {
   appendList(
     _hypervisor: string,
     listed: string[],
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  compound(
+    _hypervisor: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -481,11 +473,6 @@ export class Admin extends BaseContract {
     account: string,
     overrides?: CallOverrides
   ): Promise<boolean>;
-
-  pendingFees(
-    _hypervisor: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
 
   pullLiquidity(
     _hypervisor: string,
@@ -563,8 +550,6 @@ export class Admin extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
-
     ADVISOR_ROLE(overrides?: CallOverrides): Promise<string>;
 
     DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
@@ -588,6 +573,18 @@ export class Admin extends BaseContract {
       listed: string[],
       overrides?: CallOverrides
     ): Promise<void>;
+
+    compound(
+      _hypervisor: string,
+      overrides?: CallOverrides
+    ): Promise<
+      [BigNumber, BigNumber, BigNumber, BigNumber] & {
+        baseToken0Owed: BigNumber;
+        baseToken1Owed: BigNumber;
+        limitToken0Owed: BigNumber;
+        limitToken1Owed: BigNumber;
+      }
+    >;
 
     getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
 
@@ -613,11 +610,6 @@ export class Admin extends BaseContract {
       account: string,
       overrides?: CallOverrides
     ): Promise<boolean>;
-
-    pendingFees(
-      _hypervisor: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber] & { fees0: BigNumber; fees1: BigNumber }>;
 
     pullLiquidity(
       _hypervisor: string,
@@ -756,8 +748,6 @@ export class Admin extends BaseContract {
   };
 
   estimateGas: {
-    ADMIN_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
-
     ADVISOR_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
 
     DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
@@ -779,6 +769,11 @@ export class Admin extends BaseContract {
     appendList(
       _hypervisor: string,
       listed: string[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    compound(
+      _hypervisor: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -808,11 +803,6 @@ export class Admin extends BaseContract {
       role: BytesLike,
       account: string,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    pendingFees(
-      _hypervisor: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     pullLiquidity(
@@ -892,8 +882,6 @@ export class Admin extends BaseContract {
   };
 
   populateTransaction: {
-    ADMIN_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     ADVISOR_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     DEFAULT_ADMIN_ROLE(
@@ -917,6 +905,11 @@ export class Admin extends BaseContract {
     appendList(
       _hypervisor: string,
       listed: string[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    compound(
+      _hypervisor: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -946,11 +939,6 @@ export class Admin extends BaseContract {
       role: BytesLike,
       account: string,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    pendingFees(
-      _hypervisor: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     pullLiquidity(

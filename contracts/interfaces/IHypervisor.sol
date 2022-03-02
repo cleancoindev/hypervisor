@@ -6,7 +6,6 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Pool.sol";
 
 interface IHypervisor {
-
     function deposit(
         uint256,
         uint256,
@@ -25,7 +24,6 @@ interface IHypervisor {
         address,
         address
     ) external returns (uint256, uint256);
-
 
     function rebalance(
         int24 _baseLower,
@@ -74,20 +72,12 @@ interface IHypervisor {
 
     function deposit1Max() external view returns (uint256);
 
-    function balanceOf(address) external view returns (uint256);
-
-    function approve(address, uint256) external returns (bool);
-
-    function transferFrom(address, address, uint256) external returns (bool);
-
+    function totalSupply() external view returns (uint256);
+    
     function transfer(address, uint256) external returns (bool);
 
     function getTotalAmounts() external view returns (uint256 total0, uint256 total1);
-
-    function pendingFees() external returns (uint256 fees0, uint256 fees1);
     
-    function totalSupply() external view returns (uint256 );
-
     function setMaxTotalSupply(uint256 _maxTotalSupply) external;
 
     function setDepositMax(uint256 _deposit0Max, uint256 _deposit1Max) external;
@@ -99,5 +89,4 @@ interface IHypervisor {
     function toggleWhitelist() external;
 
     function transferOwnership(address newOwner) external;
-
 }

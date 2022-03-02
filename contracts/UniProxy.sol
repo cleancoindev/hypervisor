@@ -3,7 +3,6 @@
 pragma solidity 0.7.6;
 pragma abicoder v2;
 
-import "./interfaces/IHypervisor.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@uniswap/v3-core/contracts/libraries/FullMath.sol";
@@ -12,6 +11,7 @@ import "@openzeppelin/contracts/math/SignedSafeMath.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@uniswap/v3-core/contracts/libraries/TickMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "./interfaces/IHypervisor.sol";
 
 /// @title UniProxy
 /// @notice Proxy contract for hypervisor positions management
@@ -29,7 +29,7 @@ contract UniProxy is ReentrancyGuard, Ownable {
   uint256 public deltaScale = 1000; /// must be a power of 10
   uint256 public priceThreshold = 100;
 
-  uint256 constant MAX_INT = 2**256 - 1;
+  uint256 constant MAX_INT = type(uint256).max;
 
   struct Position {
     uint8 version; // 1->3 proxy 3 transfers, 2-> proxy two transfers, 3-> proxy no transfers

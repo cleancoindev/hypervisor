@@ -10,7 +10,6 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/drafts/ERC20Permit.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@uniswap/v3-core/contracts/interfaces/callback/IUniswapV3MintCallback.sol";
 import "@uniswap/v3-core/contracts/interfaces/callback/IUniswapV3SwapCallback.sol";
 import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Pool.sol";
@@ -23,7 +22,7 @@ import "./interfaces/IUniversalVault.sol";
 /// @title Hypervisor
 /// @notice A Uniswap V2-like interface with fungible liquidity to Uniswap V3
 /// which allows for arbitrary liquidity provision: one-sided, lop-sided, and balanced
-contract Hypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallback, ERC20Permit, ReentrancyGuard, AccessControl {
+contract Hypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallback, ERC20Permit, ReentrancyGuard {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
     using SignedSafeMath for int256;
@@ -33,25 +32,22 @@ contract Hypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallback, E
     IERC20 public token1;
     uint24 public fee;
     int24 public tickSpacing;
-
     int24 public baseLower;
     int24 public baseUpper;
     int24 public limitLower;
     int24 public limitUpper;
-
+    address public owner;
     uint256 public deposit0Max;
     uint256 public deposit1Max;
     uint256 public maxTotalSupply;
+    mapping(address => bool) public list; /// whitelist of depositors
     bool public whitelisted; /// depositors must be on list
     bool public directDeposit; /// enter uni on deposit (avoid if client uses public rpc)
-
     uint256 public constant PRECISION = 1e36;
 
     /// events
     event MaxTotalSupplySet(uint256 _maxTotalSupply);
     event DepositMaxSet(uint256 _deposit0Max, uint256 _deposit1Max);
-
-    bytes32 public constant DEPOSITOR = keccak256("DEPOSITOR");
 
     /// @param _pool Uniswap V3 pool for which liquidity is managed
     /// @param _owner Owner of the Hypervisor
@@ -70,9 +66,7 @@ contract Hypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallback, E
         require(address(token1) != address(0));
         fee = pool.fee();
         tickSpacing = pool.tickSpacing();
-
-        _setupRole(DEFAULT_ADMIN_ROLE, _owner);
-
+        owner = _owner;
         maxTotalSupply = type(uint256).max; /// no cap
         deposit0Max = type(uint256).max;
         deposit1Max = type(uint256).max;
@@ -94,7 +88,7 @@ contract Hypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallback, E
         require(deposit0 > 0 || deposit1 > 0);
         require(deposit0 <= deposit0Max && deposit1 <= deposit1Max);
         require(to != address(0) && to != address(this), "to");
-        require(!whitelisted || hasRole(DEPOSITOR, from));
+        require(!whitelisted || list[msg.sender]);
 
         /// update fees
         zeroBurn();
@@ -151,13 +145,12 @@ contract Hypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallback, E
     /// @return limit1 amount of token1 received from limit position
     function pullLiquidity(
       uint256 shares
-    ) external returns(
+    ) external onlyOwner returns(
         uint256 base0,
         uint256 base1,
         uint256 limit0,
         uint256 limit1
       ) {
-        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
         zeroBurn();
         (base0, base1) = _burnLiquidity(
             baseLower,
@@ -241,8 +234,7 @@ contract Hypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallback, E
         int24 _limitUpper,
         address feeRecipient,
         int256 swapQuantity
-    ) nonReentrant external override {
-        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
+    ) nonReentrant external override onlyOwner {
         require(
             _baseLower < _baseUpper &&
                 _baseLower % tickSpacing == 0 &&
@@ -312,13 +304,12 @@ contract Hypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallback, E
     /// @return baseToken1Owed Pending fees of base token1
     /// @return limitToken0Owed Pending fees of limit token0
     /// @return limitToken1Owed Pending fees of limit token1
-    function compound() external returns (
+    function compound() external onlyOwner returns (
       uint128 baseToken0Owed,
       uint128 baseToken1Owed,
       uint128 limitToken0Owed,
       uint128 limitToken1Owed
     ) {
-        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
         // update fees for compounding
         zeroBurn();
         (, baseToken0Owed,baseToken1Owed) = _position(baseLower, baseUpper);
@@ -349,32 +340,24 @@ contract Hypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallback, E
     /// @notice Add tokens to base liquidity
     /// @param amount0 Amount of token0 to add
     /// @param amount1 Amount of token1 to add
-    function addBaseLiquidity(uint256 amount0, uint256 amount1) external {
-        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
-        uint256 balance0 = token0.balanceOf(address(this));
-        uint256 balance1 = token1.balanceOf(address(this));
-        require(balance0 >= amount0 && balance1 >= amount1);
+    function addBaseLiquidity(uint256 amount0, uint256 amount1) external onlyOwner {
         addLiquidity(
             baseLower,
             baseUpper,
-            amount0 == 0 && amount1 == 0 ? balance0 : amount0,
-            amount0 == 0 && amount1 == 0 ? balance1 : amount1
+            amount0 == 0 && amount1 == 0 ? token0.balanceOf(address(this)) : amount0,
+            amount0 == 0 && amount1 == 0 ? token1.balanceOf(address(this)) : amount1
         );
     }
 
     /// @notice Add tokens to limit liquidity
     /// @param amount0 Amount of token0 to add
     /// @param amount1 Amount of token1 to add
-    function addLimitLiquidity(uint256 amount0, uint256 amount1) external {
-        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
-        uint256 balance0 = token0.balanceOf(address(this));
-        uint256 balance1 = token1.balanceOf(address(this));
-        require(balance0 >= amount0 && balance1 >= amount1);
+    function addLimitLiquidity(uint256 amount0, uint256 amount1) external onlyOwner {
         addLiquidity(
             limitLower,
             limitUpper,
-            amount0 == 0 && amount1 == 0 ? balance0 : amount0,
-            amount0 == 0 && amount1 == 0 ? balance1 : amount1
+            amount0 == 0 && amount1 == 0 ? token0.balanceOf(address(this)) : amount0,
+            amount0 == 0 && amount1 == 0 ? token1.balanceOf(address(this)) : amount1
         );
     }
 
@@ -616,16 +599,14 @@ contract Hypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallback, E
     }
 
     /// @param _maxTotalSupply The maximum liquidity token supply the contract allows
-    function setMaxTotalSupply(uint256 _maxTotalSupply) external {
-        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
+    function setMaxTotalSupply(uint256 _maxTotalSupply) external onlyOwner {
         maxTotalSupply = _maxTotalSupply;
         emit MaxTotalSupplySet(_maxTotalSupply);
     }
 
     /// @param _deposit0Max The maximum amount of token0 allowed in a deposit
     /// @param _deposit1Max The maximum amount of token1 allowed in a deposit
-    function setDepositMax(uint256 _deposit0Max, uint256 _deposit1Max) external {
-        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
+    function setDepositMax(uint256 _deposit0Max, uint256 _deposit1Max) external onlyOwner {
         if (deposit0Max != _deposit0Max) {
             deposit0Max = _deposit0Max;
         }
@@ -636,28 +617,34 @@ contract Hypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallback, E
     }
 
     /// @param listed Array of addresses to be appended
-    function appendList(address[] memory listed) external {
-        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
+    function appendList(address[] memory listed) external onlyOwner {
         for (uint8 i; i < listed.length; i++) {
-            grantRole(DEPOSITOR, listed[i]);
+            list[listed[i]] = true;
         }
     }
 
     /// @param listed Address of listed to remove
-    function removeListed(address listed) external {
-        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
-        revokeRole(DEPOSITOR, listed);
+    function removeListed(address listed) external onlyOwner {
+        list[listed] = false;
     }
 
     /// @notice Toggle Direct Deposit
-    function toggleDirectDeposit() external {
-        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
+    function toggleDirectDeposit() external onlyOwner {
         directDeposit = !directDeposit;
     }
 
     /// @notice Toogle Whitelist configuration
-    function toggleWhitelist() external {
-        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender));
+    function toggleWhitelist() external onlyOwner {
         whitelisted = !whitelisted;
+    }
+
+    function transferOwnership(address newOwner) external onlyOwner {
+        require(newOwner != address(0));
+        owner = newOwner;
+    }
+
+    modifier onlyOwner {
+        require(msg.sender == owner, "only owner");
+        _;
     }
 }

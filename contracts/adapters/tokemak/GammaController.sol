@@ -8,28 +8,22 @@ import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "./interfaces/ITokeHypervisor.sol";
-import "./interfaces/IUniProxy.sol";
 import "./BaseController.sol";
 
 contract GammaController is BaseController {
     using SafeERC20 for IERC20;
     using Address for address;
     using SafeMath for uint256;
-    IUniProxy public immutable uniProxy;
     uint256 public constant N_COINS = 2;
     
     constructor(
         address manager,
-        address addressRegistry,
-        address _uniProxy
-    ) public BaseController(manager, addressRegistry) {
-        require(_uniProxy != address(0), "INVALID_GAMMA_ADDRESS_PROVIDER");
-        uniProxy = IUniProxy(_uniProxy);
-    }
+        address addressRegistry
+    ) public BaseController(manager, addressRegistry) { }
 
     /// @notice Deploy liquidity to a Gamma Hypervisor ( controller owns assets, manager receives LP tokens )
     /// @dev Calls to external contract
-    /// @dev We trust sender to send a true gamma lpTokenAddress. If it's not the case it will fail in the UniProxy deposit require.
+    /// @dev We trust sender to send a true gamma lpTokenAddress
     /// @param amount0 quantity of token0 of Hypervisor 
     /// @param amount1 quantity of token1 of Hypervisor 
     /// @param lpTokenAddress LP Token(Hypervisor) address

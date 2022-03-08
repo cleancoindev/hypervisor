@@ -66,18 +66,12 @@ describe('Tokemak', () => {
     })
 
     it('tokemak deposit & withdraw', async () => {
-        let uniProxyFactory = await ethers.getContractFactory('UniProxy')
-        
         // alice is manager
-        let uniProxy = (await uniProxyFactory.connect(manager).deploy())
-        let owner = await uniProxy.owner();
-        // expect(owner).to.equal(manager.address);
-        // await uniProxy.connect(manager).addPosition(hypervisor.address, 2);
 
         // deploy GammaController
         let gammaControllerFactory = await ethers.getContractFactory('GammaController')
         let gammaController = await (gammaControllerFactory.connect(manager).deploy(
-            manager.address, manager.address, uniProxy.address
+            manager.address, manager.address
         ))
 
         await token0.mint(manager.address, ethers.utils.parseEther('1000000'))
@@ -85,8 +79,6 @@ describe('Tokemak', () => {
 
         await token0.connect(manager).approve(tokeHypervisor.address, ethers.utils.parseEther('1000000'))
         await token1.connect(manager).approve(tokeHypervisor.address, ethers.utils.parseEther('1000000'))
-        await token0.connect(manager).approve(uniProxy.address, ethers.utils.parseEther('1000000'))
-        await token1.connect(manager).approve(uniProxy.address, ethers.utils.parseEther('1000000'))
 
         let liqBalance = await tokeHypervisor.balanceOf(manager.address)
         let amount0 = await token0.balanceOf(manager.address)

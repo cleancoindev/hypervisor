@@ -229,9 +229,29 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IHypervisor__factory>;
     getContractFactory(
+      name: "ITokeHypervisor",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ITokeHypervisor__factory>;
+    getContractFactory(
       name: "IUniProxy",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IUniProxy__factory>;
+    getContractFactory(
+      name: "IUniversalVault",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IUniversalVault__factory>;
+    getContractFactory(
+      name: "IVault",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IVault__factory>;
+    getContractFactory(
+      name: "TokeHypervisor",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.TokeHypervisor__factory>;
+    getContractFactory(
+      name: "TokeHypervisorFactory",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.TokeHypervisorFactory__factory>;
     getContractFactory(
       name: "Hypervisor",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -564,10 +584,35 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IHypervisor>;
     getContractAt(
+      name: "ITokeHypervisor",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ITokeHypervisor>;
+    getContractAt(
       name: "IUniProxy",
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.IUniProxy>;
+    getContractAt(
+      name: "IUniversalVault",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IUniversalVault>;
+    getContractAt(
+      name: "IVault",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IVault>;
+    getContractAt(
+      name: "TokeHypervisor",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TokeHypervisor>;
+    getContractAt(
+      name: "TokeHypervisorFactory",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.TokeHypervisorFactory>;
     getContractAt(
       name: "Hypervisor",
       address: string,

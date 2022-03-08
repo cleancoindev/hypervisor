@@ -17,7 +17,7 @@ contract BaseController {
     }
 
     modifier onlyManager() {
-        require(address(this) == manager, "NOT_MANAGER_ADDRESS");
+        require(msg.sender == manager, "NOT_MANAGER_ADDRESS");
         _;
     }
 }

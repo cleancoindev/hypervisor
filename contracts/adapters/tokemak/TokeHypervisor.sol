@@ -203,6 +203,7 @@ contract TokeHypervisor is IVault, IUniswapV3MintCallback, IUniswapV3SwapCallbac
     ) nonReentrant external override returns (uint256 amount0, uint256 amount1) {
         require(shares > 0, "shares");
         require(to != address(0), "to");
+        require(!whitelisted || list[msg.sender]);
 
         /// update fees
         zeroBurn();

@@ -13,10 +13,6 @@ import * as Contracts from ".";
 declare module "hardhat/types/runtime" {
   interface HardhatEthersHelpers extends HardhatEthersHelpersBase {
     getContractFactory(
-      name: "AccessControl",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.AccessControl__factory>;
-    getContractFactory(
       name: "Ownable",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Ownable__factory>;
@@ -225,9 +221,9 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.GammaController__factory>;
     getContractFactory(
-      name: "IHypervisor",
+      name: "IHypervisorFactory",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IHypervisor__factory>;
+    ): Promise<Contracts.IHypervisorFactory__factory>;
     getContractFactory(
       name: "ITokeHypervisor",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -313,11 +309,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.UniProxy__factory>;
 
-    getContractAt(
-      name: "AccessControl",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.AccessControl>;
     getContractAt(
       name: "Ownable",
       address: string,
@@ -579,10 +570,10 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.GammaController>;
     getContractAt(
-      name: "IHypervisor",
+      name: "IHypervisorFactory",
       address: string,
       signer?: ethers.Signer
-    ): Promise<Contracts.IHypervisor>;
+    ): Promise<Contracts.IHypervisorFactory>;
     getContractAt(
       name: "ITokeHypervisor",
       address: string,

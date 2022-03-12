@@ -53,27 +53,22 @@ describe('Tokemak', () => {
         await tokeHypervisorFactory.createHypervisor(token0.address, token1.address, FeeAmount.MEDIUM,"Test Visor", "TVR");
         const tokeHypervisorAddress = await tokeHypervisorFactory.getHypervisor(token0.address, token1.address, FeeAmount.MEDIUM)
         tokeHypervisor = (await ethers.getContractAt('TokeHypervisor', tokeHypervisorAddress)) as TokeHypervisor
-
+        await tokeHypervisor.toggleWhitelist();
         const poolAddress = await factory.getPool(token0.address, token1.address, FeeAmount.MEDIUM)
         uniswapPool = (await ethers.getContractAt('IUniswapV3Pool', poolAddress)) as IUniswapV3Pool
         await uniswapPool.initialize(encodePriceSqrt('1', '1'))
         await tokeHypervisor.setDepositMax(ethers.utils.parseEther('100000'), ethers.utils.parseEther('100000'))
-
-        // adding extra liquidity into pool to make sure there's always
-        // someone to swap with
-        await token0.mint(carol.address, ethers.utils.parseEther('1000000000000'))
-        await token1.mint(carol.address, ethers.utils.parseEther('1000000000000'))
     })
 
     it('tokemak deposit & withdraw', async () => {
-        // alice is manager
 
         // deploy GammaController
         let gammaControllerFactory = await ethers.getContractFactory('GammaController')
         let gammaController = await (gammaControllerFactory.connect(manager).deploy(
-            manager.address, manager.address
+            manager.address, manager.address, tokeHypervisorFactory.address
         ))
 
+        await tokeHypervisor.appendList([gammaController.address]);
         await token0.mint(manager.address, ethers.utils.parseEther('1000000'))
         await token1.mint(manager.address, ethers.utils.parseEther('1000000'))
 
@@ -88,11 +83,16 @@ describe('Tokemak', () => {
         console.log("Amount 0: " + ethers.utils.formatEther(amount0))
         console.log("Amount 1: " + ethers.utils.formatEther(amount1))
 
+        // alice may deposit from manager to recieve LP tokens 
+        expect(tokeHypervisor.connect(alice).deposit(ethers.utils.parseEther('1000'), ethers.utils.parseEther('1000'), alice.address, manager.address)).to.be.reverted;
+
         // deposit
         await gammaController.connect(manager).deploy(
             ethers.utils.parseEther('1000'),
             ethers.utils.parseEther('1000'),
-            tokeHypervisor.address,
+            token0.address,
+            token1.address,
+            FeeAmount.MEDIUM,
             0
         )
 
@@ -103,11 +103,16 @@ describe('Tokemak', () => {
         console.log("After Deposit: " + ethers.utils.formatEther(liqBalance))
         console.log("Amount 0: " + ethers.utils.formatEther(amount0))
         console.log("Amount 1: " + ethers.utils.formatEther(amount1))
+        
+        // alice may not withdraw from manager to recieve token0, token1
+        expect(tokeHypervisor.connect(alice).withdraw(liqBalance, alice.address, manager.address)).to.be.reverted;
 
         // withdraw
 
         await gammaController.connect(manager).withdraw(
-            tokeHypervisor.address,
+            token0.address,
+            token1.address,
+            FeeAmount.MEDIUM,
             liqBalance,
             [0, 0]
         )

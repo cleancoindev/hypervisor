@@ -103,7 +103,7 @@ contract GammaController is BaseController {
         for (uint256 i = 0; i < N_COINS; i++) {
             if (amounts[i] > 0) {
                 require(balancesBefore[i] < balancesAfter[i], "BALANCE_MUST_INCREASE");
-                require(amounts[i] <= balancesAfter[i], "BALANCE_LT_MIN");
+                require(amounts[i] <= balancesAfter[i] - balancesBefore[i], "BALANCE_LT_MIN");
             }
         }
     }

@@ -63,9 +63,8 @@ contract GammaController is BaseController {
 				require(lpTokenReceived >= minMintAmount, "INSUFFICIENT_MINT");
     }
 
-    /// @notice Withdraw liquidity from Hypervisor ( controller owns LP tokens, controller receives assets ) 
+    /// @notice Withdraw liquidity from TokeHypervisor ( TokeHypervisor's msg.sender owns LP tokens, manager receives assets ) 
     /// @dev Calls to external contract
-    /// @dev We trust sender to send a true gamma lpTokenAddress. If it's not the case it will fail in the UniProxy deposit require.
     /// @param token0 address of pool token0 
     /// @param token1 address of pool token1
     /// @param fee fee of pool

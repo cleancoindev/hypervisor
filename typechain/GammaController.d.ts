@@ -25,7 +25,7 @@ interface GammaControllerInterface extends ethers.utils.Interface {
     "addressRegistry()": FunctionFragment;
     "deploy(uint256,uint256,address,address,uint24,uint256)": FunctionFragment;
     "manager()": FunctionFragment;
-    "withdraw(address,address,uint24,uint256,uint256[2])": FunctionFragment;
+    "withdraw(address,address,uint24,uint256,uint256[2],uint256[2])": FunctionFragment;
   };
 
   encodeFunctionData(functionFragment: "N_COINS", values?: undefined): string;
@@ -52,6 +52,7 @@ interface GammaControllerInterface extends ethers.utils.Interface {
       string,
       BigNumberish,
       BigNumberish,
+      [BigNumberish, BigNumberish],
       [BigNumberish, BigNumberish]
     ]
   ): string;
@@ -134,6 +135,7 @@ export class GammaController extends BaseContract {
       fee: BigNumberish,
       amount: BigNumberish,
       minAmounts: [BigNumberish, BigNumberish],
+      minBurnAmounts: [BigNumberish, BigNumberish],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
@@ -160,6 +162,7 @@ export class GammaController extends BaseContract {
     fee: BigNumberish,
     amount: BigNumberish,
     minAmounts: [BigNumberish, BigNumberish],
+    minBurnAmounts: [BigNumberish, BigNumberish],
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -186,6 +189,7 @@ export class GammaController extends BaseContract {
       fee: BigNumberish,
       amount: BigNumberish,
       minAmounts: [BigNumberish, BigNumberish],
+      minBurnAmounts: [BigNumberish, BigNumberish],
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -215,6 +219,7 @@ export class GammaController extends BaseContract {
       fee: BigNumberish,
       amount: BigNumberish,
       minAmounts: [BigNumberish, BigNumberish],
+      minBurnAmounts: [BigNumberish, BigNumberish],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
@@ -242,6 +247,7 @@ export class GammaController extends BaseContract {
       fee: BigNumberish,
       amount: BigNumberish,
       minAmounts: [BigNumberish, BigNumberish],
+      minBurnAmounts: [BigNumberish, BigNumberish],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };

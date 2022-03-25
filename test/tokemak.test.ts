@@ -53,7 +53,6 @@ describe('Tokemak', () => {
         await tokeHypervisorFactory.createHypervisor(token0.address, token1.address, FeeAmount.MEDIUM,"Test Visor", "TVR");
         const tokeHypervisorAddress = await tokeHypervisorFactory.getHypervisor(token0.address, token1.address, FeeAmount.MEDIUM)
         tokeHypervisor = (await ethers.getContractAt('TokeHypervisor', tokeHypervisorAddress)) as TokeHypervisor
-        await tokeHypervisor.toggleWhitelist();
         const poolAddress = await factory.getPool(token0.address, token1.address, FeeAmount.MEDIUM)
         uniswapPool = (await ethers.getContractAt('IUniswapV3Pool', poolAddress)) as IUniswapV3Pool
         await uniswapPool.initialize(encodePriceSqrt('1', '1'))
@@ -68,7 +67,7 @@ describe('Tokemak', () => {
             manager.address, manager.address, tokeHypervisorFactory.address
         ))
 
-        await tokeHypervisor.appendList([gammaController.address]);
+        await tokeHypervisor.setWhitelist(gammaController.address);
         await token0.mint(manager.address, ethers.utils.parseEther('1000000'))
         await token1.mint(manager.address, ethers.utils.parseEther('1000000'))
 
@@ -84,7 +83,7 @@ describe('Tokemak', () => {
         console.log("Amount 1: " + ethers.utils.formatEther(amount1))
 
         // alice may deposit from manager to recieve LP tokens 
-        expect(tokeHypervisor.connect(alice).deposit(ethers.utils.parseEther('1000'), ethers.utils.parseEther('1000'), alice.address, manager.address)).to.be.reverted;
+        await expect(tokeHypervisor.connect(alice).deposit(ethers.utils.parseEther('1000'), ethers.utils.parseEther('1000'), alice.address, manager.address)).to.be.revertedWith("WHE")
 
         // deposit
         await gammaController.connect(manager).deploy(
@@ -105,15 +104,15 @@ describe('Tokemak', () => {
         console.log("Amount 1: " + ethers.utils.formatEther(amount1))
         
         // alice may not withdraw from manager to recieve token0, token1
-        expect(tokeHypervisor.connect(alice).withdraw(liqBalance, alice.address, manager.address)).to.be.reverted;
+        await expect(tokeHypervisor.connect(alice).withdraw(liqBalance, alice.address, manager.address, 0, 0)).to.be.revertedWith("WHE");
 
         // withdraw
-
         await gammaController.connect(manager).withdraw(
             token0.address,
             token1.address,
             FeeAmount.MEDIUM,
             liqBalance,
+            [0, 0],
             [0, 0]
         )
         

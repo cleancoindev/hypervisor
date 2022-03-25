@@ -76,14 +76,15 @@ contract GammaController is BaseController {
         address token1,
         uint24 fee,
         uint256 amount,
-        uint256[N_COINS] memory minAmounts
+        uint256[N_COINS] memory minAmounts,
+        uint256[N_COINS] memory minBurnAmounts
     ) external onlyManager {
         
         address lpTokenAddress = hypeFactory.getHypervisor(token0, token1, fee);
         uint256 lpTokenBalanceBefore = IERC20(lpTokenAddress).balanceOf(manager);
         uint256[N_COINS] memory coinsBalancesBefore = _getCoinsBalances(lpTokenAddress);
 
-        ITokeHypervisor(lpTokenAddress).withdraw(amount, manager, manager);
+        ITokeHypervisor(lpTokenAddress).withdraw(amount, manager, manager, minBurnAmounts[0], minBurnAmounts[1]);
 
         uint256 lpTokenBalanceAfter = IERC20(lpTokenAddress).balanceOf(manager);
         uint256[N_COINS] memory coinsBalancesAfter = _getCoinsBalances(lpTokenAddress);
@@ -120,4 +121,3 @@ contract GammaController is BaseController {
         token.safeIncreaseAllowance(spender, amount);
     }
 }
-

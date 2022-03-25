@@ -309,10 +309,15 @@ describe('Hypervisor', () => {
         const user3_liq_balance = await hypervisor.balanceOf(user3.address)
         const user4_liq_balance = await hypervisor.balanceOf(user4.address)
 
+        await hypervisor.setWhitelist(user0.address)
         await hypervisor.connect(user0).withdraw(user0_liq_balance, user0.address, user0.address, 0, 0)
+        await hypervisor.setWhitelist(user1.address)
         await hypervisor.connect(user1).withdraw(user1_liq_balance, user1.address, user1.address, 0, 0)
+        await hypervisor.setWhitelist(user2.address)
         await hypervisor.connect(user2).withdraw(user2_liq_balance, user2.address, user2.address, 0, 0)
+        await hypervisor.setWhitelist(user3.address)
         await hypervisor.connect(user3).withdraw(user3_liq_balance, user3.address, user3.address, 0, 0)
+        await hypervisor.setWhitelist(user4.address)
         await hypervisor.connect(user4).withdraw(user4_liq_balance, user4.address, user4.address, 0, 0)
 
         user0token0Amount = await token0.balanceOf(user0.address)

@@ -206,6 +206,7 @@ contract Hypervisor is IVault, IUniswapV3MintCallback, ERC20Permit, ReentrancyGu
     ) nonReentrant external override returns (uint256 amount0, uint256 amount1) {
         require(shares > 0, "shares");
         require(to != address(0), "to");
+        require(!whitelisted || msg.sender == whitelistedAddress, "WHE");
 
         /// update fees
         zeroBurn();
@@ -239,10 +240,6 @@ contract Hypervisor is IVault, IUniswapV3MintCallback, ERC20Permit, ReentrancyGu
         amount0 = base0.add(limit0).add(unusedAmount0);
         amount1 = base1.add(limit1).add(unusedAmount1);
 
-        require(
-            from == msg.sender || IUniversalVault(from).owner() == msg.sender,
-            "own"
-        );
         _burn(from, shares);
 
         emit Withdraw(from, to, shares, amount0, amount1);

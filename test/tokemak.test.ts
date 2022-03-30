@@ -56,7 +56,6 @@ describe('Tokemak', () => {
         const poolAddress = await factory.getPool(token0.address, token1.address, FeeAmount.MEDIUM)
         uniswapPool = (await ethers.getContractAt('IUniswapV3Pool', poolAddress)) as IUniswapV3Pool
         await uniswapPool.initialize(encodePriceSqrt('1', '1'))
-        await tokeHypervisor.setDepositMax(ethers.utils.parseEther('100000'), ethers.utils.parseEther('100000'))
     })
 
     it('tokemak deposit & withdraw', async () => {
@@ -83,7 +82,7 @@ describe('Tokemak', () => {
         console.log("Amount 1: " + ethers.utils.formatEther(amount1))
 
         // alice may deposit from manager to recieve LP tokens 
-        await expect(tokeHypervisor.connect(alice).deposit(ethers.utils.parseEther('1000'), ethers.utils.parseEther('1000'), alice.address, manager.address)).to.be.revertedWith("WHE")
+        await expect(tokeHypervisor.connect(alice).deposit(ethers.utils.parseEther('1000'), ethers.utils.parseEther('1000'), alice.address, manager.address, [0, 0, 0, 0])).to.be.revertedWith("WHE")
 
         // deposit
         await gammaController.connect(manager).deploy(
@@ -92,7 +91,8 @@ describe('Tokemak', () => {
             token0.address,
             token1.address,
             FeeAmount.MEDIUM,
-            0
+            0,
+            [0, 0, 0, 0]
         )
 
         liqBalance = await tokeHypervisor.balanceOf(manager.address)
@@ -104,7 +104,7 @@ describe('Tokemak', () => {
         console.log("Amount 1: " + ethers.utils.formatEther(amount1))
         
         // alice may not withdraw from manager to recieve token0, token1
-        await expect(tokeHypervisor.connect(alice).withdraw(liqBalance, alice.address, manager.address, 0, 0)).to.be.revertedWith("WHE");
+        await expect(tokeHypervisor.connect(alice).withdraw(liqBalance, alice.address, manager.address, [0, 0, 0, 0])).to.be.revertedWith("WHE");
 
         // withdraw
         await gammaController.connect(manager).withdraw(
@@ -112,8 +112,7 @@ describe('Tokemak', () => {
             token1.address,
             FeeAmount.MEDIUM,
             liqBalance,
-            [0, 0],
-            [0, 0]
+            [0, 0, 0, 0],
         )
         
         liqBalance = await tokeHypervisor.balanceOf(manager.address)

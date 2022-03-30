@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: MIT
-
 pragma solidity 0.6.11;
 pragma experimental ABIEncoderV2;
 
@@ -40,7 +39,8 @@ contract GammaController is BaseController {
       address token0,
       address token1,
       uint24 fee,
-      uint256 minMintAmount
+      uint256 minMintAmount,
+      uint256[4] memory inMin
     ) external onlyManager {
 
         address lpTokenAddress = hypeFactory.getHypervisor(token0, token1, fee);
@@ -55,12 +55,11 @@ contract GammaController is BaseController {
 
         uint256 lpTokenBalanceBefore = IERC20(lpTokenAddress).balanceOf(manager);
         // deposit amount0, amount1 and mint LP tokens to the manager 
-        // uint256 lpTokenReceived = uniProxy.deposit(amount0, amount1, manager, lpTokenAddress);
-        uint256 lpTokenReceived = ITokeHypervisor(lpTokenAddress).deposit(amount0, amount1, manager, manager);
+        uint256 lpTokenReceived = ITokeHypervisor(lpTokenAddress).deposit(amount0, amount1, manager, manager, inMin);
 
         uint256 lpTokenBalanceAfter = IERC20(lpTokenAddress).balanceOf(manager);
         require(lpTokenBalanceBefore + lpTokenReceived == lpTokenBalanceAfter, "LP_TOKEN_MISMATCH");
-				require(lpTokenReceived >= minMintAmount, "INSUFFICIENT_MINT");
+        require(lpTokenReceived >= minMintAmount, "INSUFFICIENT_MINT");
     }
 
     /// @notice Withdraw liquidity from TokeHypervisor ( TokeHypervisor's msg.sender owns LP tokens, manager receives assets ) 
@@ -75,19 +74,19 @@ contract GammaController is BaseController {
         address token1,
         uint24 fee,
         uint256 amount,
-        uint256[N_COINS] memory minAmounts,
+        uint256[4] memory minAmounts
     ) external onlyManager {
         
         address lpTokenAddress = hypeFactory.getHypervisor(token0, token1, fee);
         uint256 lpTokenBalanceBefore = IERC20(lpTokenAddress).balanceOf(manager);
         uint256[N_COINS] memory coinsBalancesBefore = _getCoinsBalances(lpTokenAddress);
 
-        ITokeHypervisor(lpTokenAddress).withdraw(amount, manager, manager, minAmounts[0], minAmounts[1]);
+        ITokeHypervisor(lpTokenAddress).withdraw(amount, manager, manager, minAmounts);
 
         uint256 lpTokenBalanceAfter = IERC20(lpTokenAddress).balanceOf(manager);
         uint256[N_COINS] memory coinsBalancesAfter = _getCoinsBalances(lpTokenAddress);
 
-        _compareCoinsBalances(coinsBalancesBefore, coinsBalancesAfter, minAmounts);
+        _compareCoinsBalances(coinsBalancesBefore, coinsBalancesAfter, [minAmounts[0].add(minAmounts[2]), minAmounts[1].add(minAmounts[3])]);
 
         require(lpTokenBalanceBefore - amount == lpTokenBalanceAfter, "LP_TOKEN_MISMATCH");
     }

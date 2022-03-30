@@ -21,42 +21,37 @@ import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 
 interface ITokeHypervisorInterface extends ethers.utils.Interface {
   functions: {
-    "addBaseLiquidity(uint256,uint256)": FunctionFragment;
-    "addLimitLiquidity(uint256,uint256)": FunctionFragment;
+    "addBaseLiquidity(uint256,uint256,uint256[2])": FunctionFragment;
+    "addLimitLiquidity(uint256,uint256,uint256[2])": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "compound()": FunctionFragment;
     "currentTick()": FunctionFragment;
-    "deposit(uint256,uint256,address,address)": FunctionFragment;
+    "deposit(uint256,uint256,address,address,uint256[4])": FunctionFragment;
     "deposit0Max()": FunctionFragment;
     "deposit1Max()": FunctionFragment;
     "getTotalAmounts()": FunctionFragment;
-    "pendingFees()": FunctionFragment;
     "pool()": FunctionFragment;
-    "pullLiquidity(uint256,uint256,uint256)": FunctionFragment;
-    "rebalance(int24,int24,int24,int24,address,uint256,uint256)": FunctionFragment;
+    "pullLiquidity(uint256,uint256[4])": FunctionFragment;
+    "rebalance(int24,int24,int24,int24,address,uint256[4],uint256[4])": FunctionFragment;
     "removeWhitelisted()": FunctionFragment;
-    "setDepositMax(uint256,uint256)": FunctionFragment;
-    "setMaxTotalSupply(uint256)": FunctionFragment;
-    "setSlippage(uint24)": FunctionFragment;
     "setWhitelist(address)": FunctionFragment;
-    "toggleWhitelist()": FunctionFragment;
     "token0()": FunctionFragment;
     "token1()": FunctionFragment;
     "totalSupply()": FunctionFragment;
     "transfer(address,uint256)": FunctionFragment;
     "transferFrom(address,address,uint256)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
-    "withdraw(uint256,address,address,uint256,uint256)": FunctionFragment;
+    "withdraw(uint256,address,address,uint256[4])": FunctionFragment;
   };
 
   encodeFunctionData(
     functionFragment: "addBaseLiquidity",
-    values: [BigNumberish, BigNumberish]
+    values: [BigNumberish, BigNumberish, [BigNumberish, BigNumberish]]
   ): string;
   encodeFunctionData(
     functionFragment: "addLimitLiquidity",
-    values: [BigNumberish, BigNumberish]
+    values: [BigNumberish, BigNumberish, [BigNumberish, BigNumberish]]
   ): string;
   encodeFunctionData(
     functionFragment: "approve",
@@ -70,7 +65,13 @@ interface ITokeHypervisorInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "deposit",
-    values: [BigNumberish, BigNumberish, string, string]
+    values: [
+      BigNumberish,
+      BigNumberish,
+      string,
+      string,
+      [BigNumberish, BigNumberish, BigNumberish, BigNumberish]
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "deposit0Max",
@@ -84,14 +85,13 @@ interface ITokeHypervisorInterface extends ethers.utils.Interface {
     functionFragment: "getTotalAmounts",
     values?: undefined
   ): string;
-  encodeFunctionData(
-    functionFragment: "pendingFees",
-    values?: undefined
-  ): string;
   encodeFunctionData(functionFragment: "pool", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "pullLiquidity",
-    values: [BigNumberish, BigNumberish, BigNumberish]
+    values: [
+      BigNumberish,
+      [BigNumberish, BigNumberish, BigNumberish, BigNumberish]
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "rebalance",
@@ -101,8 +101,8 @@ interface ITokeHypervisorInterface extends ethers.utils.Interface {
       BigNumberish,
       BigNumberish,
       string,
-      BigNumberish,
-      BigNumberish
+      [BigNumberish, BigNumberish, BigNumberish, BigNumberish],
+      [BigNumberish, BigNumberish, BigNumberish, BigNumberish]
     ]
   ): string;
   encodeFunctionData(
@@ -110,24 +110,8 @@ interface ITokeHypervisorInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "setDepositMax",
-    values: [BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setMaxTotalSupply",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setSlippage",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
     functionFragment: "setWhitelist",
     values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "toggleWhitelist",
-    values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "token0", values?: undefined): string;
   encodeFunctionData(functionFragment: "token1", values?: undefined): string;
@@ -149,7 +133,12 @@ interface ITokeHypervisorInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "withdraw",
-    values: [BigNumberish, string, string, BigNumberish, BigNumberish]
+    values: [
+      BigNumberish,
+      string,
+      string,
+      [BigNumberish, BigNumberish, BigNumberish, BigNumberish]
+    ]
   ): string;
 
   decodeFunctionResult(
@@ -180,10 +169,6 @@ interface ITokeHypervisorInterface extends ethers.utils.Interface {
     functionFragment: "getTotalAmounts",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "pendingFees",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "pool", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "pullLiquidity",
@@ -195,23 +180,7 @@ interface ITokeHypervisorInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setDepositMax",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setMaxTotalSupply",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setSlippage",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "setWhitelist",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "toggleWhitelist",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "token0", data: BytesLike): Result;
@@ -281,12 +250,14 @@ export class ITokeHypervisor extends BaseContract {
     addBaseLiquidity(
       amount0: BigNumberish,
       amount1: BigNumberish,
+      minIn: [BigNumberish, BigNumberish],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     addLimitLiquidity(
       amount0: BigNumberish,
       amount1: BigNumberish,
+      minIn: [BigNumberish, BigNumberish],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -311,6 +282,7 @@ export class ITokeHypervisor extends BaseContract {
       arg1: BigNumberish,
       arg2: string,
       arg3: string,
+      minIn: [BigNumberish, BigNumberish, BigNumberish, BigNumberish],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -324,16 +296,11 @@ export class ITokeHypervisor extends BaseContract {
       [BigNumber, BigNumber] & { total0: BigNumber; total1: BigNumber }
     >;
 
-    pendingFees(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     pool(overrides?: CallOverrides): Promise<[string]>;
 
     pullLiquidity(
       shares: BigNumberish,
-      amount0Min: BigNumberish,
-      amount1Min: BigNumberish,
+      minAmounts: [BigNumberish, BigNumberish, BigNumberish, BigNumberish],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -343,8 +310,8 @@ export class ITokeHypervisor extends BaseContract {
       _limitLower: BigNumberish,
       _limitUpper: BigNumberish,
       _feeRecipient: string,
-      _amount0Min: BigNumberish,
-      _amount1Min: BigNumberish,
+      minIn: [BigNumberish, BigNumberish, BigNumberish, BigNumberish],
+      outMin: [BigNumberish, BigNumberish, BigNumberish, BigNumberish],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -352,28 +319,8 @@ export class ITokeHypervisor extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    setDepositMax(
-      _deposit0Max: BigNumberish,
-      _deposit1Max: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setMaxTotalSupply(
-      _maxTotalSupply: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setSlippage(
-      slippage: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     setWhitelist(
       _address: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    toggleWhitelist(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -405,8 +352,7 @@ export class ITokeHypervisor extends BaseContract {
       arg0: BigNumberish,
       arg1: string,
       arg2: string,
-      arg3: BigNumberish,
-      arg4: BigNumberish,
+      arg3: [BigNumberish, BigNumberish, BigNumberish, BigNumberish],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
@@ -414,12 +360,14 @@ export class ITokeHypervisor extends BaseContract {
   addBaseLiquidity(
     amount0: BigNumberish,
     amount1: BigNumberish,
+    minIn: [BigNumberish, BigNumberish],
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   addLimitLiquidity(
     amount0: BigNumberish,
     amount1: BigNumberish,
+    minIn: [BigNumberish, BigNumberish],
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -442,6 +390,7 @@ export class ITokeHypervisor extends BaseContract {
     arg1: BigNumberish,
     arg2: string,
     arg3: string,
+    minIn: [BigNumberish, BigNumberish, BigNumberish, BigNumberish],
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -453,16 +402,11 @@ export class ITokeHypervisor extends BaseContract {
     overrides?: CallOverrides
   ): Promise<[BigNumber, BigNumber] & { total0: BigNumber; total1: BigNumber }>;
 
-  pendingFees(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   pool(overrides?: CallOverrides): Promise<string>;
 
   pullLiquidity(
     shares: BigNumberish,
-    amount0Min: BigNumberish,
-    amount1Min: BigNumberish,
+    minAmounts: [BigNumberish, BigNumberish, BigNumberish, BigNumberish],
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -472,8 +416,8 @@ export class ITokeHypervisor extends BaseContract {
     _limitLower: BigNumberish,
     _limitUpper: BigNumberish,
     _feeRecipient: string,
-    _amount0Min: BigNumberish,
-    _amount1Min: BigNumberish,
+    minIn: [BigNumberish, BigNumberish, BigNumberish, BigNumberish],
+    outMin: [BigNumberish, BigNumberish, BigNumberish, BigNumberish],
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -481,28 +425,8 @@ export class ITokeHypervisor extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  setDepositMax(
-    _deposit0Max: BigNumberish,
-    _deposit1Max: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setMaxTotalSupply(
-    _maxTotalSupply: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setSlippage(
-    slippage: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   setWhitelist(
     _address: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  toggleWhitelist(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -534,8 +458,7 @@ export class ITokeHypervisor extends BaseContract {
     arg0: BigNumberish,
     arg1: string,
     arg2: string,
-    arg3: BigNumberish,
-    arg4: BigNumberish,
+    arg3: [BigNumberish, BigNumberish, BigNumberish, BigNumberish],
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -543,12 +466,14 @@ export class ITokeHypervisor extends BaseContract {
     addBaseLiquidity(
       amount0: BigNumberish,
       amount1: BigNumberish,
+      minIn: [BigNumberish, BigNumberish],
       overrides?: CallOverrides
     ): Promise<void>;
 
     addLimitLiquidity(
       amount0: BigNumberish,
       amount1: BigNumberish,
+      minIn: [BigNumberish, BigNumberish],
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -578,6 +503,7 @@ export class ITokeHypervisor extends BaseContract {
       arg1: BigNumberish,
       arg2: string,
       arg3: string,
+      minIn: [BigNumberish, BigNumberish, BigNumberish, BigNumberish],
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -591,16 +517,11 @@ export class ITokeHypervisor extends BaseContract {
       [BigNumber, BigNumber] & { total0: BigNumber; total1: BigNumber }
     >;
 
-    pendingFees(
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber] & { fees0: BigNumber; fees1: BigNumber }>;
-
     pool(overrides?: CallOverrides): Promise<string>;
 
     pullLiquidity(
       shares: BigNumberish,
-      amount0Min: BigNumberish,
-      amount1Min: BigNumberish,
+      minAmounts: [BigNumberish, BigNumberish, BigNumberish, BigNumberish],
       overrides?: CallOverrides
     ): Promise<
       [BigNumber, BigNumber, BigNumber, BigNumber] & {
@@ -617,32 +538,14 @@ export class ITokeHypervisor extends BaseContract {
       _limitLower: BigNumberish,
       _limitUpper: BigNumberish,
       _feeRecipient: string,
-      _amount0Min: BigNumberish,
-      _amount1Min: BigNumberish,
+      minIn: [BigNumberish, BigNumberish, BigNumberish, BigNumberish],
+      outMin: [BigNumberish, BigNumberish, BigNumberish, BigNumberish],
       overrides?: CallOverrides
     ): Promise<void>;
 
     removeWhitelisted(overrides?: CallOverrides): Promise<void>;
 
-    setDepositMax(
-      _deposit0Max: BigNumberish,
-      _deposit1Max: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setMaxTotalSupply(
-      _maxTotalSupply: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setSlippage(
-      slippage: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     setWhitelist(_address: string, overrides?: CallOverrides): Promise<void>;
-
-    toggleWhitelist(overrides?: CallOverrides): Promise<void>;
 
     token0(overrides?: CallOverrides): Promise<string>;
 
@@ -672,8 +575,7 @@ export class ITokeHypervisor extends BaseContract {
       arg0: BigNumberish,
       arg1: string,
       arg2: string,
-      arg3: BigNumberish,
-      arg4: BigNumberish,
+      arg3: [BigNumberish, BigNumberish, BigNumberish, BigNumberish],
       overrides?: CallOverrides
     ): Promise<[BigNumber, BigNumber]>;
   };
@@ -684,12 +586,14 @@ export class ITokeHypervisor extends BaseContract {
     addBaseLiquidity(
       amount0: BigNumberish,
       amount1: BigNumberish,
+      minIn: [BigNumberish, BigNumberish],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     addLimitLiquidity(
       amount0: BigNumberish,
       amount1: BigNumberish,
+      minIn: [BigNumberish, BigNumberish],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -712,6 +616,7 @@ export class ITokeHypervisor extends BaseContract {
       arg1: BigNumberish,
       arg2: string,
       arg3: string,
+      minIn: [BigNumberish, BigNumberish, BigNumberish, BigNumberish],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -721,16 +626,11 @@ export class ITokeHypervisor extends BaseContract {
 
     getTotalAmounts(overrides?: CallOverrides): Promise<BigNumber>;
 
-    pendingFees(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     pool(overrides?: CallOverrides): Promise<BigNumber>;
 
     pullLiquidity(
       shares: BigNumberish,
-      amount0Min: BigNumberish,
-      amount1Min: BigNumberish,
+      minAmounts: [BigNumberish, BigNumberish, BigNumberish, BigNumberish],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -740,8 +640,8 @@ export class ITokeHypervisor extends BaseContract {
       _limitLower: BigNumberish,
       _limitUpper: BigNumberish,
       _feeRecipient: string,
-      _amount0Min: BigNumberish,
-      _amount1Min: BigNumberish,
+      minIn: [BigNumberish, BigNumberish, BigNumberish, BigNumberish],
+      outMin: [BigNumberish, BigNumberish, BigNumberish, BigNumberish],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -749,28 +649,8 @@ export class ITokeHypervisor extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    setDepositMax(
-      _deposit0Max: BigNumberish,
-      _deposit1Max: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setMaxTotalSupply(
-      _maxTotalSupply: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setSlippage(
-      slippage: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     setWhitelist(
       _address: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    toggleWhitelist(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -802,8 +682,7 @@ export class ITokeHypervisor extends BaseContract {
       arg0: BigNumberish,
       arg1: string,
       arg2: string,
-      arg3: BigNumberish,
-      arg4: BigNumberish,
+      arg3: [BigNumberish, BigNumberish, BigNumberish, BigNumberish],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
@@ -812,12 +691,14 @@ export class ITokeHypervisor extends BaseContract {
     addBaseLiquidity(
       amount0: BigNumberish,
       amount1: BigNumberish,
+      minIn: [BigNumberish, BigNumberish],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     addLimitLiquidity(
       amount0: BigNumberish,
       amount1: BigNumberish,
+      minIn: [BigNumberish, BigNumberish],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -843,6 +724,7 @@ export class ITokeHypervisor extends BaseContract {
       arg1: BigNumberish,
       arg2: string,
       arg3: string,
+      minIn: [BigNumberish, BigNumberish, BigNumberish, BigNumberish],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -852,16 +734,11 @@ export class ITokeHypervisor extends BaseContract {
 
     getTotalAmounts(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    pendingFees(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     pool(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     pullLiquidity(
       shares: BigNumberish,
-      amount0Min: BigNumberish,
-      amount1Min: BigNumberish,
+      minAmounts: [BigNumberish, BigNumberish, BigNumberish, BigNumberish],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -871,8 +748,8 @@ export class ITokeHypervisor extends BaseContract {
       _limitLower: BigNumberish,
       _limitUpper: BigNumberish,
       _feeRecipient: string,
-      _amount0Min: BigNumberish,
-      _amount1Min: BigNumberish,
+      minIn: [BigNumberish, BigNumberish, BigNumberish, BigNumberish],
+      outMin: [BigNumberish, BigNumberish, BigNumberish, BigNumberish],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -880,28 +757,8 @@ export class ITokeHypervisor extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    setDepositMax(
-      _deposit0Max: BigNumberish,
-      _deposit1Max: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setMaxTotalSupply(
-      _maxTotalSupply: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setSlippage(
-      slippage: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     setWhitelist(
       _address: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    toggleWhitelist(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -933,8 +790,7 @@ export class ITokeHypervisor extends BaseContract {
       arg0: BigNumberish,
       arg1: string,
       arg2: string,
-      arg3: BigNumberish,
-      arg4: BigNumberish,
+      arg3: [BigNumberish, BigNumberish, BigNumberish, BigNumberish],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };

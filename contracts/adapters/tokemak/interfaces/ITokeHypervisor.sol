@@ -7,20 +7,19 @@ import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Pool.sol";
 
 interface ITokeHypervisor {
   function deposit(
-    uint256,
-    uint256,
-    address,
-    address
+      uint256,
+      uint256,
+      address,
+      address,
+      uint256[4] memory minIn
   ) external returns (uint256);
 
   function withdraw(
     uint256,
     address,
     address,
-    uint256,
-    uint256
+    uint256[4] memory
   ) external returns (uint256, uint256);
-
 
   function rebalance(
     int24 _baseLower,
@@ -28,24 +27,25 @@ interface ITokeHypervisor {
     int24 _limitLower,
     int24 _limitUpper,
     address _feeRecipient,
-    uint256 _amount0Min,
-    uint256 _amount1Min
+    uint256[4] memory minIn, 
+    uint256[4] memory outMin
   ) external;
 
   function addBaseLiquidity(
     uint256 amount0, 
-    uint256 amount1
+    uint256 amount1,
+    uint256[2] memory minIn
   ) external;
 
   function addLimitLiquidity(
     uint256 amount0, 
-    uint256 amount1
+    uint256 amount1,
+    uint256[2] memory minIn
   ) external;   
 
   function pullLiquidity(
     uint256 shares,
-    uint256 amount0Min,
-    uint256 amount1Min
+    uint256[4] memory minAmounts
   ) external returns (
     uint256 base0,
     uint256 base1,
@@ -82,21 +82,11 @@ interface ITokeHypervisor {
 
   function getTotalAmounts() external view returns (uint256 total0, uint256 total1);
 
-  function pendingFees() external returns (uint256 fees0, uint256 fees1);
-  
   function totalSupply() external view returns (uint256 );
-
-  function setMaxTotalSupply(uint256 _maxTotalSupply) external;
-
-  function setDepositMax(uint256 _deposit0Max, uint256 _deposit1Max) external;
 
   function setWhitelist(address _address) external;
   
   function removeWhitelisted() external;
-
-  function setSlippage(uint24 slippage) external;
-
-  function toggleWhitelist() external;
 
   function transferOwnership(address newOwner) external;
 

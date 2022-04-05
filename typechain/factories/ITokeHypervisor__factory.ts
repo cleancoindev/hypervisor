@@ -22,6 +22,11 @@ const _abi = [
         name: "amount1",
         type: "uint256",
       },
+      {
+        internalType: "uint256[2]",
+        name: "minIn",
+        type: "uint256[2]",
+      },
     ],
     name: "addBaseLiquidity",
     outputs: [],
@@ -39,6 +44,11 @@ const _abi = [
         internalType: "uint256",
         name: "amount1",
         type: "uint256",
+      },
+      {
+        internalType: "uint256[2]",
+        name: "minIn",
+        type: "uint256[2]",
       },
     ],
     name: "addLimitLiquidity",
@@ -152,6 +162,11 @@ const _abi = [
         name: "",
         type: "address",
       },
+      {
+        internalType: "uint256[4]",
+        name: "minIn",
+        type: "uint256[4]",
+      },
     ],
     name: "deposit",
     outputs: [
@@ -210,24 +225,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "pendingFees",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "fees0",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "fees1",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
     name: "pool",
     outputs: [
       {
@@ -247,14 +244,9 @@ const _abi = [
         type: "uint256",
       },
       {
-        internalType: "uint256",
-        name: "amount0Min",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "amount1Min",
-        type: "uint256",
+        internalType: "uint256[4]",
+        name: "minAmounts",
+        type: "uint256[4]",
       },
     ],
     name: "pullLiquidity",
@@ -311,14 +303,14 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "uint256",
-        name: "_amount0Min",
-        type: "uint256",
+        internalType: "uint256[4]",
+        name: "minIn",
+        type: "uint256[4]",
       },
       {
-        internalType: "uint256",
-        name: "_amount1Min",
-        type: "uint256",
+        internalType: "uint256[4]",
+        name: "outMin",
+        type: "uint256[4]",
       },
     ],
     name: "rebalance",
@@ -336,63 +328,12 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "uint256",
-        name: "_deposit0Max",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_deposit1Max",
-        type: "uint256",
-      },
-    ],
-    name: "setDepositMax",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_maxTotalSupply",
-        type: "uint256",
-      },
-    ],
-    name: "setMaxTotalSupply",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint24",
-        name: "slippage",
-        type: "uint24",
-      },
-    ],
-    name: "setSlippage",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "address",
         name: "_address",
         type: "address",
       },
     ],
     name: "setWhitelist",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "toggleWhitelist",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -520,14 +461,9 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "uint256",
+        internalType: "uint256[4]",
         name: "",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
+        type: "uint256[4]",
       },
     ],
     name: "withdraw",
